@@ -85,7 +85,7 @@
 		return bP;
 	  }
 	  bP.barSize = function(_){
-		if(!arguments.length) return barSize
+		if(!arguments.length) return typeof barSize !== "undefined" ? barSize : 35;
 		barSize = _;
 		return bP;
 	  }
