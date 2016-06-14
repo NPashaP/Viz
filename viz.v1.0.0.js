@@ -201,7 +201,7 @@
 						,primary:part=="primary"? d.key : t.key
 						,secondary:part=="primary"? t.key : d.key	
 						,value:t.value
-						,percent:bars[i].p*g.p
+						,percent:bars[i].p*g.percent
 						,i: part=="primary"? j+"|"+i : i+"|"+j //index 
 					});
 				});		  
