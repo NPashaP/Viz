@@ -1,7 +1,7 @@
 !function(){
-  var vis = { version: "1.0.0", template:{} };
+  var viz = { version: "1.0.0", template:{} };
     
-  vis.bP = function(){
+  viz.bP = function(){
 	  var key_scale, value_scale
 		,keyPrimary, keySecondary, value
 		,width, height, orient, barSize, min, pad
@@ -310,6 +310,6 @@
 	  return bP;
 	}
   
-  this.vis=vis;
+  this.viz=viz;
 }();
 
