@@ -186,11 +186,10 @@
 				.rollup(function(d){ return d3.sum(d,v); })
 				.entries(bP.data());
 							
-			ps.forEach(function(d,j){ 
+			ps.forEach(function(d){ 
 				var g= map.get(d.key); 
 				var bars = bpmap(d.values, 0, 0, _or=="vertical" ? g.y : g.x, _or=="vertical" ? g.y+g.height : g.x+g.width);
-				var bsize = bP.barSize();
-			
+				var bsize = bP.barSize();			
 				d.values.forEach(function(t,i){ 
 					subBars[part].push({
 						 x:_or=="vertical"? part=="primary" ? 0 : bP.width()-bsize : bars[i].s
@@ -202,17 +201,16 @@
 						,secondary:part=="primary"? t.key : d.key	
 						,value:t.value
 						,percent:bars[i].p*g.percent
-						,i: part=="primary"? j+"|"+i : i+"|"+j //index 
+						,index: part=="primary"? d.key+"|"+t.key : t.key+"|"+d.key //index 
 					});
 				});		  
 			});
 		}
 		function calculateEdges(){	
-			var map=d3.map(subBars.secondary,function(d){ return d.i;});
-			
+			var map=d3.map(subBars.secondary,function(d){ return d.index;});
+//console.log(subBars);			
 			return subBars.primary.map(function(d){
-				var g=map.get(d.i);
-				
+				var g=map.get(d.index);
 				return {
 					 path:_or === "vertical" 
 						? ["M",d.x+d.width,",",d.y+d.height,"V",d.y,"L",g.x,",",g.y,"V",g.y+g.height,"Z"].join("")
@@ -227,10 +225,9 @@
 		function bpmap(a/*array*/, p/*pad*/, m/*min*/, s/*start*/, e/*end*/){
 			var r = m/(e-s-2*a.length*p); // cut-off for ratios
 			var ln =0, lp=0, t=d3.sum(a,function(d){ return d.value;}); // left over count and percent.
-			if(t<=0) return a;
 			
 			a.forEach(function(d){ if(d.value < r*t ){ ln+=1; lp+=d.value; }})
-			var o=(e-s-2*a.length*p-ln*m)/(t-lp); // scaling factor for percent.
+			var o=(e-s-2*a.length*p-ln*m)/(t==0? 1:t-lp); // scaling factor for percent.
 			var b=s, ret=[];
 			a.forEach(function(d){ 
 				var v =d.value*o; 
@@ -247,7 +244,6 @@
 	  }	  
 	  bP.mouseover = function(d){
 		  var newbars = bP.bars(d);
-		  
 		  g.selectAll(".mainBars").filter(function(r){ return r.part===d.part && r.key === d.key})
 			.style("stroke-opacity", 1);
 		  
