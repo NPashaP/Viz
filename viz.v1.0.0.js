@@ -16,12 +16,11 @@
 		  var s = g.selectAll(".subBars")
         	.data(bars.subBars)
         	.enter()
-        	.append("rect")
+			.append("g")
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
         	.attr("class","subBars")
-        	.attr("x",function(d){ return d.x})
-			.attr("y",function(d){ return d.y})
-        	.attr("width",function(d){ return d.width})
-        	.attr("height",function(d){ return d.height});
+        	.append("rect")
+        	.attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh);
 			
          if(typeof fill !=="undefined") s.style("fill", function(d){ return fill(d); });
 			 
@@ -39,12 +38,10 @@
         	.data(bars.mainBars)
         	.enter()
 			.append("g")
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
         	.attr("class","mainBars")
         	.append("rect")
-        	.attr("x",function(d){ return d.x})
-        	.attr("y",function(d){ return d.y})
-        	.attr("width",function(d){ return d.width})
-        	.attr("height",function(d){ return d.height})
+        	.attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh)
 			.on("mouseover",bP.mouseover)
 			.on("mouseout",bP.mouseout);			
 		});
@@ -124,7 +121,7 @@
 		calculateMainBars("secondary");	
 		calculateSubBars("primary");	
 		calculateSubBars("secondary");
-		floorMainBars();
+		floorMainBars(); // ensure that main bars is atleast of size mi.n
 		
 		return {
 			 mainBars:mainBars.primary.concat(mainBars.secondary)
@@ -136,18 +133,17 @@
 			return (typeof mb === "undefined" || mb.part === part) || (key[mb.part](d) === mb.key);
 		}
 		function floorMainBars(){
-			var m =bP.min();
+			var m =bP.min()/2;
 			
 			mainBars.primary.forEach(function(d){
 				if(d.height<m){
-					d.y=d.y+.5*(d.height-m);
+//					d.y=d.y+.5*(d.height-m);
 					d.height=m;
 				}
 			});
-			
 			mainBars.secondary.forEach(function(d){
 				if(d.height<m){
-					d.x=d.x+.5*(d.height-m);
+//					d.y=d.y+.5*(d.height-m);
 					d.height=m;
 				}
 			});
@@ -162,19 +158,18 @@
 
 			var bars = bpmap(ps, bP.pad(), bP.min(), 0, _or=="vertical" ? bP.height() : bP.width());
 			var bsize = bP.barSize();
-			
 			ps.forEach(function(d,i){ 
 				mainBars[part].push({
-					 x:_or=="vertical"? part=="primary" ? 0 : bP.width()-bsize : bars[i].s
-					,y:_or=="horizontal"? part=="primary" ? 0 : bP.height()-bsize : bars[i].s
-					,height:_or=="vertical"? bars[i].e - bars[i].s : bsize
-					,width: _or=="horizontal"? bars[i].e - bars[i].s : bsize
+					 x:_or=="horizontal"? (bars[i].s+bars[i].e)/2 : (part=="primary" ? bsize/2 : bP.width()-bsize/2)
+					,y:_or=="vertical"? (bars[i].s+bars[i].e)/2 : (part=="primary" ? bsize/2 : bP.height()-bsize/2)
+					,height:_or=="vertical"? (bars[i].e - bars[i].s)/2 : bsize/2
+					,width: _or=="horizontal"? (bars[i].e - bars[i].s)/2 : bsize/2
 					,part:part
 					,key:d.key
 					,value:d.value
 					,percent:bars[i].p
 				});
-			});		  
+			});
 		}
 		function calculateSubBars(part){
 			function v(d){ return isSelKey(d, part) ? bP.value()(d): 0;};
@@ -188,14 +183,16 @@
 							
 			ps.forEach(function(d){ 
 				var g= map.get(d.key); 
-				var bars = bpmap(d.values, 0, 0, _or=="vertical" ? g.y : g.x, _or=="vertical" ? g.y+g.height : g.x+g.width);
+				var bars = bpmap(d.values, 0, 0
+						,_or=="vertical" ? g.y-g.height : g.x-g.width
+						,_or=="vertical" ? g.y+g.height : g.x+g.width);
 				var bsize = bP.barSize();			
 				d.values.forEach(function(t,i){ 
 					subBars[part].push({
-						 x:_or=="vertical"? part=="primary" ? 0 : bP.width()-bsize : bars[i].s
-						,y:_or=="horizontal"? part=="primary" ? 0 : bP.height()-bsize : bars[i].s
-						,height:_or=="vertical"? bars[i].e - bars[i].s : bsize
-						,width: _or=="horizontal"? bars[i].e - bars[i].s : bsize
+						 x:_or=="vertical"? part=="primary" ? bsize/2 : bP.width()-bsize/2 : (bars[i].s+bars[i].e)/2
+						,y:_or=="horizontal"? part=="primary" ? bsize/2 : bP.height()-bsize/2 : (bars[i].s+bars[i].e)/2
+						,height:(_or=="vertical"? bars[i].e - bars[i].s : bsize)/2
+						,width: (_or=="horizontal"? bars[i].e - bars[i].s : bsize)/2
 						,part:part
 						,primary:part=="primary"? d.key : t.key
 						,secondary:part=="primary"? t.key : d.key	
@@ -208,13 +205,14 @@
 		}
 		function calculateEdges(){	
 			var map=d3.map(subBars.secondary,function(d){ return d.index;});
-//console.log(subBars);			
 			return subBars.primary.map(function(d){
 				var g=map.get(d.index);
 				return {
 					 path:_or === "vertical" 
-						? ["M",d.x+d.width,",",d.y+d.height,"V",d.y,"L",g.x,",",g.y,"V",g.y+g.height,"Z"].join("")
-						: ["M",d.x,",",d.y+d.height,"H",d.x+d.width,"L",g.x+g.width,",",g.y,"H",g.x,"Z"].join("")
+						? ["M",d.x+d.width,",",d.y+d.height,"V",d.y-d.height,"L",g.x-g.width,",",g.y-g.height
+							,"V",g.y+g.height,"Z"].join("")
+						: ["M",d.x-d.width,",",d.y+d.height,"H",d.x+d.width,"L",g.x+g.width,",",g.y-g.height
+							,"H",g.x-g.width,"Z"].join("")
 					,primary:d.primary
 					,secondary:d.secondary
 					,value:d.value
@@ -225,16 +223,15 @@
 		function bpmap(a/*array*/, p/*pad*/, m/*min*/, s/*start*/, e/*end*/){
 			var r = m/(e-s-2*a.length*p); // cut-off for ratios
 			var ln =0, lp=0, t=d3.sum(a,function(d){ return d.value;}); // left over count and percent.
-			
 			a.forEach(function(d){ if(d.value < r*t ){ ln+=1; lp+=d.value; }})
-			var o=(e-s-2*a.length*p-ln*m)/(t==0? 1:t-lp); // scaling factor for percent.
+			var o= t < 1e-5 ? 0:(e-s-2*a.length*p-ln*m)/(t-lp); // scaling factor for percent.
 			var b=s, ret=[];
 			a.forEach(function(d){ 
 				var v =d.value*o; 
 				ret.push({
 					 s:b+p+(v<m?.5*(m-v): 0)
 					,e:b+p+(v<m? .5*(m+v):v)
-					,p:d.value/t
+					,p:t < 1e-5? 0:d.value/t
 				}); 
 				b+=2*p+(v<m? m:v); 
 			});
@@ -245,14 +242,12 @@
 	  bP.mouseover = function(d){
 		  var newbars = bP.bars(d);
 		  g.selectAll(".mainBars").filter(function(r){ return r.part===d.part && r.key === d.key})
-			.style("stroke-opacity", 1);
+			.select("rect").style("stroke-opacity", 1);
 		  
-		  g.selectAll(".subBars")
-			.data(newbars.subBars)
+		  g.selectAll(".subBars").data(newbars.subBars)
 			.transition().duration(bP.duration())
-			.attr("x",function(d){ return d.x}).attr("y",function(d){ return d.y})
-			.attr("width",function(d){ return d.width})
-			.attr("height",function(d){ return d.height});
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
+			.select("rect").attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh);
 			
 		  var e = g.selectAll(".edges")
 			.data(newbars.edges);
@@ -267,42 +262,37 @@
 			.style("fill-opacity",0)
 			.attr("d",function(d){ return d.path});	
 			
-		  g.selectAll(".mainBars")
-			.data(newbars.mainBars)
+		  g.selectAll(".mainBars").data(newbars.mainBars)
 			.transition().duration(bP.duration())
-			.attr("x",function(d){ return d.x})
-			.attr("y",function(d){ return d.y})
-			.attr("width",function(d){ return d.width})
-			.attr("height",function(d){ return d.height})
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
+			.select("rect").attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh)
 		}
 	  bP.mouseout = function(d){
 		  var newbars = bP.bars();
 			
 		  g.selectAll(".mainBars").filter(function(r){ return r.part===d.part && r.key === d.key})
-			.style("stroke-opacity", 0);
+			.select("rect").style("stroke-opacity", 0);
 		  
-		  g.selectAll(".subBars")
-			.data(newbars.subBars)
+		  g.selectAll(".subBars").data(newbars.subBars)
 			.transition().duration(bP.duration())
-			.attr("x",function(d){ return d.x}).attr("y",function(d){ return d.y})
-			.attr("width",function(d){ return d.width})
-			.attr("height",function(d){ return d.height});
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
+			.select("rect").attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh);
 			
-		  g.selectAll(".edges")
-			.data(newbars.edges)
+		  g.selectAll(".edges").data(newbars.edges)
 			.transition().duration(bP.duration())
 			.style("fill-opacity",bP.edgeOpacity())
 			.attr("d",function(d){ return d.path});	
 			
-		  g.selectAll(".mainBars")
-			.data(newbars.mainBars)
+		  g.selectAll(".mainBars").data(newbars.mainBars)
 			.transition().duration(bP.duration())
-			.attr("x",function(d){ return d.x})
-			.attr("y",function(d){ return d.y})
-			.attr("width",function(d){ return d.width})
-			.attr("height",function(d){ return d.height})
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
+			.select("rect").attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh);
 		}
-
+	  function fx(d){ return -d.width}
+	  function fy(d){ return -d.height}
+      function fw(d){ return 2*d.width}
+      function fh(d){ return 2*d.height}
+	  
 	  return bP;
 	}
   
