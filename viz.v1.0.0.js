@@ -296,6 +296,212 @@
 	  return bP;
 	}
   
+  viz.gg = function(){
+	  var innerRadius, outerRadius, startAngle, endAngle, needleColor, innerFaceColor, faceColor
+		,tickColor, domain, value, angleOffset, duration, ease
+	  ;
+	  var def={
+		innerRadius:20, outerRadius:150, angleOffset:0.7
+		,startAngle:-1.5*Math.PI, endAngle:0.5*Math.PI
+		,inTick:.12, outTick:.2, needleColor:"#de2c2c", innerFaceColor:"#999999", faceColor:"#666666"
+		,tickColor:"#ffffff", domain:[0,100], duration:500, ease:"cubicInOut"
+	  };
+	  function gg(_){
+		g=_;
+        _.each(function() {
+			var g = d3.select(this);
+			var dom=gg.domain();
+			var a = gg.scale();
+			var it=gg.inTick(), ot=gg.outTick(), or=gg.outerRadius();
+			var ticks=d3.range(dom[0],dom[1]+1,2);
+			
+			g.append("circle").attr("r",or)
+				.style("fill","url(#vizgg03)")
+				.attr("class","vizggouter");
+	
+			g.append("circle").attr("r",gg.innerRadius())
+				.style("fill","url(#vizgg02)")
+				.style("filter","url(#vizgg05)");
+  
+			var tickg = g.append("g").style("stroke",gg.tickColor());
+			
+			tickg.selectAll("line").data(ticks).enter().append("line")
+				.style("stroke-width","2")
+				.attr("x1",function(d){ return or*(1-it)*Math.cos(a(d));})
+				.attr("y1",function(d){ return or*(1-it)*Math.sin(a(d));})
+				.attr("x2",function(d){ return or*.95*Math.cos(a(d));})
+				.attr("y2",function(d){ return or*.95*Math.sin(a(d));});
+  
+			tickg.selectAll("line").filter(function(d){ return d%10===0})
+				.style("stroke-width","3") 
+				.attr("x1",function(d){ return or*(1-ot)*Math.cos(a(d));})
+				.attr("y1",function(d){ return or*(1-ot)*Math.sin(a(d));});
+	
+			g.selectAll("text").data(ticks.filter(function(d){ return d%10 === 0}))
+				.enter().append("text").attr("class","vizggtext")
+				.attr("x",function(d){ return or*(1-it)*.8*Math.cos(a(d));})
+				.attr("y",function(d){ return or*(1-it)*.8*Math.sin(a(d));})
+				.attr("dy",3)
+				.text(function(d){ return d;});
+				
+			var r = gg.outerRadius()/def.outerRadius;
+
+			var rot=gg.scale()(gg.value())*180/Math.PI+90;
+			
+//			console.log(rot);
+			g.append("g").attr("transform","translate(1,1)")
+				.selectAll(".needleshadow").data([0]).enter().append("g")
+				.attr("transform","rotate("+rot+")")
+				.attr("class","needleshadow")
+				.append("path")
+				.attr("d",["m 0",-130*r, 5*r, 175*r, -10*r, "0,z"].join(","))
+				.style("filter","url(#vizgg06)");
+	
+			g.selectAll(".needle").data([0]).enter().append("g")
+				.attr("transform","rotate("+rot+")")
+				.attr("class","needle")
+				.append("polygon")
+				.attr("points",[-0.5*r,-130*r, 0.5*r,-130*r, 5*r,45*r, -5*r,45*r].join(","))
+				.style("fill","url(#vizgg04)");			
+		});		  
+	  }
+	  gg.scale = function(){ 
+		return d3.scale.linear().domain(gg.domain())
+			.range([def.startAngle+gg.angleOffset(), def.endAngle -gg.angleOffset()]);
+	  }
+	  gg.innerRadius = function(_){
+		if(!arguments.length) return typeof innerRadius !== "undefined" ? innerRadius : def.innerRadius;
+		innerRadius = _;
+		return gg;
+	  }
+	  gg.outerRadius = function(_){
+		if(!arguments.length) return typeof outerRadius !== "undefined" ? outerRadius : def.outerRadius;
+		outerRadius = _;
+		return gg;
+	  }
+	  gg.angleOffset = function(_){
+		if(!arguments.length) return typeof angleOffset !== "undefined" ? angleOffset : def.angleOffset;
+		angleOffset = _;
+		return gg;
+	  }
+	  gg.inTick = function(_){
+		if(!arguments.length) return typeof inTick !== "undefined" ? inTick : def.inTick;
+		inTick = _;
+		return gg;
+	  }
+	  gg.outTick = function(_){
+		if(!arguments.length) return typeof outTick !== "undefined" ? outTick : def.outTick;
+		outTick = _;
+		return gg;
+	  }
+	  gg.needleColor = function(_){
+		if(!arguments.length) return typeof needleColor !== "undefined" ? needleColor : def.needleColor;
+		needleColor = _;
+		return gg;
+	  }
+	  gg.innerFaceColor = function(_){
+		if(!arguments.length) return typeof innerFaceColor !== "undefined" ? innerFaceColor : def.innerFaceColor;
+		innerFaceColor = _;
+		return gg;
+	  }
+	  gg.tickColor = function(_){
+		if(!arguments.length) return typeof tickColor !== "undefined" ? tickColor : def.tickColor;
+		tickColor = _;
+		return gg;
+	  }
+	  gg.faceColor = function(_){
+		if(!arguments.length) return typeof faceColor !== "undefined" ? faceColor : def.faceColor;
+		faceColor = _;
+		return gg;
+	  }
+	  gg.domain = function(_){
+		if(!arguments.length) return typeof domain !== "undefined" ? domain : def.domain;
+		domain = _;
+		return gg;
+	  }
+	  gg.duration = function(_){
+		if(!arguments.length) return typeof duration !== "undefined" ? duration : def.duration;
+		duration = _;
+		return gg;
+	  }
+	  gg.ease = function(_){
+		if(!arguments.length) return typeof ease !== "undefined" ? ease : def.ease;
+		ease = _;
+		return gg;
+	  }
+	  gg.value = function(_){
+		if(!arguments.length) return typeof value !== "undefined" ? value : .5*(def.domain[0]+def.domain[1]);
+		value = _;
+		return gg;
+	  }
+	  gg.defs = function(svg){
+		var defs=svg.append("defs");
+		  
+		var lg1 =defs.append("linearGradient").attr("id","vizgg01");
+		var nc = gg.needleColor();
+		lg1.append("stop").attr("offset","0").style("stop-color",nc);
+		lg1.append("stop").attr("offset","1").style("stop-color",d3.rgb(nc).darker(1));
+		
+		var rg1 =defs.append("radialGradient").attr("fx","35%").attr("fy","65%").attr("r","65%")
+					.attr("spreadMethod","pad").attr("id","vizgg02");
+		var fc =gg.innerFaceColor();
+		rg1.append("stop").attr("offset","0").style("stop-color",fc);
+		rg1.append("stop").attr("offset","1").style("stop-color",d3.rgb(fc).darker(2));
+		
+		var rg2 =defs.append("radialGradient").attr("fx","35%").attr("fy","65%").attr("r","65%")
+					.attr("spreadMethod","pad").attr("id","vizgg03");
+		var fbc =gg.faceColor();
+		rg2.append("stop").attr("offset","0").style("stop-color",fbc);
+		rg2.append("stop").attr("offset","1").style("stop-color",d3.rgb(fbc).darker(2));
+		
+		defs.append("linearGradient").attr("gradientUnits","userSpaceOnUse")
+			.attr("y1","80").attr("x1","-10").attr("y2","80").attr("x2","10")
+			.attr("id","vizgg04").attr("xlink:href","#vizgg01")
+			
+		var fl1 = defs.append("filter").attr("id","vizgg05")
+		fl1.append("feFlood").attr("result","flood").attr("flood-color","rgb(0,0,0)").attr("flood-opacity","0.6");
+		
+		fl1.append("feComposite").attr("result","composite1")
+			.attr("operator","in").attr("in2","SourceGraphic").attr("in","flood");
+			
+		fl1.append("feGaussianBlur").attr("result","blur").attr("stdDeviation","2").attr("in","composite1");
+		
+		fl1.append("feOffset").attr("result","offset").attr("dy","2").attr("dx","2");
+		
+		fl1.append("feComposite").attr("result","composite2").attr("operator","over")
+			.attr("in2","offset").attr("in","SourceGraphic");
+			
+		var fl2 =defs.append("filter").attr("x","-0.3").attr("y","-0.3")
+			.attr("height","1.8").attr("width","1.8").attr("id","vizgg06");
+			
+		fl2.append("feGaussianBlur").attr("stdDeviation","2");
+	  }
+	  
+	  gg.setNeedle =function(a){
+		var newAngle=gg.scale()(a)*180/Math.PI+90
+			,oldAngle=gg.scale()(gg.value())*180/Math.PI+90
+			,d3ease = d3.ease(gg.ease());
+			
+		g.selectAll(".needle").data([a])
+			.transition().duration(gg.duration())
+			.attrTween("transform",function(d){ return iS(oldAngle,newAngle); })
+			.ease(d3ease);
+		
+		g.selectAll(".needleshadow").data([a])
+			.transition().duration(gg.duration())
+			.attrTween("transform",function(d){  return iS(oldAngle,newAngle); })
+			.ease(d3ease)
+			.each("end",function(){angle=a;});
+			
+		gg.value(a);
+		
+		function iS(o,n){
+			return d3.interpolateString("rotate("+o+")", "rotate("+n+")");
+		}
+	  }
+	  
+	  return gg;
+  }
   this.viz=viz;
 }();
 
