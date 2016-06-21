@@ -298,7 +298,7 @@
   
   viz.gg = function(){
 	  var innerRadius, outerRadius, startAngle, endAngle, needleColor, innerFaceColor, faceColor
-		,tickColor, domain, value, angleOffset, duration, ease
+		,tickColor, domain, value, angleOffset, duration, ease, g, dpg, inTick, outTick
 	  ;
 	  var def={
 		innerRadius:20, outerRadius:150, angleOffset:0.7
@@ -316,31 +316,31 @@
 			var ticks=d3.range(dom[0],dom[1]+1,2);
 			
 			g.append("circle").attr("r",or)
-				.style("fill","url(#vizgg03)")
+				.style("fill","url(#vizgg3"+dpg+")")
 				.attr("class","vizggouter");
 	
 			g.append("circle").attr("r",gg.innerRadius())
-				.style("fill","url(#vizgg02)")
-				.style("filter","url(#vizgg05)");
+				.style("fill","url(#vizgg2"+dpg+")")
+				.style("filter","url(#vizgg5"+dpg+")");
   
 			var tickg = g.append("g").style("stroke",gg.tickColor());
 			
 			tickg.selectAll("line").data(ticks).enter().append("line")
 				.style("stroke-width","2")
-				.attr("x1",function(d){ return or*(1-it)*Math.cos(a(d));})
-				.attr("y1",function(d){ return or*(1-it)*Math.sin(a(d));})
+				.attr("x1",function(d){ return or*(.95-it)*Math.cos(a(d));})
+				.attr("y1",function(d){ return or*(.95-it)*Math.sin(a(d));})
 				.attr("x2",function(d){ return or*.95*Math.cos(a(d));})
 				.attr("y2",function(d){ return or*.95*Math.sin(a(d));});
   
 			tickg.selectAll("line").filter(function(d){ return d%10===0})
 				.style("stroke-width","3") 
-				.attr("x1",function(d){ return or*(1-ot)*Math.cos(a(d));})
-				.attr("y1",function(d){ return or*(1-ot)*Math.sin(a(d));});
+				.attr("x1",function(d){ return or*(.95-ot)*Math.cos(a(d));})
+				.attr("y1",function(d){ return or*(.95-ot)*Math.sin(a(d));});
 	
 			g.selectAll("text").data(ticks.filter(function(d){ return d%10 === 0}))
 				.enter().append("text").attr("class","vizggtext")
-				.attr("x",function(d){ return or*(1-it)*.8*Math.cos(a(d));})
-				.attr("y",function(d){ return or*(1-it)*.8*Math.sin(a(d));})
+				.attr("x",function(d){ return or*(.95-ot)*.9*Math.cos(a(d));})
+				.attr("y",function(d){ return or*(.95-ot)*.9*Math.sin(a(d));})
 				.attr("dy",3)
 				.text(function(d){ return d;});
 				
@@ -348,21 +348,20 @@
 
 			var rot=gg.scale()(gg.value())*180/Math.PI+90;
 			
-//			console.log(rot);
 			g.append("g").attr("transform","translate(1,1)")
 				.selectAll(".needleshadow").data([0]).enter().append("g")
 				.attr("transform","rotate("+rot+")")
 				.attr("class","needleshadow")
 				.append("path")
 				.attr("d",["m 0",-130*r, 5*r, 175*r, -10*r, "0,z"].join(","))
-				.style("filter","url(#vizgg06)");
+				.style("filter","url(#vizgg6"+dpg+")");
 	
 			g.selectAll(".needle").data([0]).enter().append("g")
 				.attr("transform","rotate("+rot+")")
 				.attr("class","needle")
 				.append("polygon")
 				.attr("points",[-0.5*r,-130*r, 0.5*r,-130*r, 5*r,45*r, -5*r,45*r].join(","))
-				.style("fill","url(#vizgg04)");			
+				.style("fill","url(#vizgg4"+dpg+")");			
 		});		  
 	  }
 	  gg.scale = function(){ 
@@ -434,54 +433,47 @@
 		value = _;
 		return gg;
 	  }
-	  gg.defs = function(svg){
+	  gg.defs = function(svg, dg){
+
 		var defs=svg.append("defs");
-		  
-		var lg1 =defs.append("linearGradient").attr("id","vizgg01");
+		dpg=dg;
 		var nc = gg.needleColor();
-		lg1.append("stop").attr("offset","0").style("stop-color",nc);
-		lg1.append("stop").attr("offset","1").style("stop-color",d3.rgb(nc).darker(1));
-		
-		var rg1 =defs.append("radialGradient").attr("fx","35%").attr("fy","65%").attr("r","65%")
-					.attr("spreadMethod","pad").attr("id","vizgg02");
 		var fc =gg.innerFaceColor();
-		rg1.append("stop").attr("offset","0").style("stop-color",fc);
-		rg1.append("stop").attr("offset","1").style("stop-color",d3.rgb(fc).darker(2));
-		
-		var rg2 =defs.append("radialGradient").attr("fx","35%").attr("fy","65%").attr("r","65%")
-					.attr("spreadMethod","pad").attr("id","vizgg03");
 		var fbc =gg.faceColor();
-		rg2.append("stop").attr("offset","0").style("stop-color",fbc);
-		rg2.append("stop").attr("offset","1").style("stop-color",d3.rgb(fbc).darker(2));
 		
-		defs.append("linearGradient").attr("gradientUnits","userSpaceOnUse")
-			.attr("y1","80").attr("x1","-10").attr("y2","80").attr("x2","10")
-			.attr("id","vizgg04").attr("xlink:href","#vizgg01")
-			
-		var fl1 = defs.append("filter").attr("id","vizgg05")
-		fl1.append("feFlood").attr("result","flood").attr("flood-color","rgb(0,0,0)").attr("flood-opacity","0.6");
+		var lg1 =viz.defs(defs).lG().id("vizgg1"+dg).sel();		
+		viz.defs(lg1).stop().offset("0").stopColor(nc);
+		viz.defs(lg1).stop().offset("1").stopColor(d3.rgb(nc).darker(1));
 		
-		fl1.append("feComposite").attr("result","composite1")
-			.attr("operator","in").attr("in2","SourceGraphic").attr("in","flood");
-			
-		fl1.append("feGaussianBlur").attr("result","blur").attr("stdDeviation","2").attr("in","composite1");
+		var rg1 =viz.defs(defs).rG().id("vizgg2"+dg)
+			.fx("35%").fy("65%").r("65%").spreadMethod("pad").sel();
+		viz.defs(rg1).stop().offset("0").stopColor(fc);
+		viz.defs(rg1).stop().offset("1").stopColor(d3.rgb(fc).darker(2));
 		
-		fl1.append("feOffset").attr("result","offset").attr("dy","2").attr("dx","2");
+		var rg2 =viz.defs(defs).rG().id("vizgg3"+dg)
+			.fx("35%").fy("65%").r("65%").spreadMethod("pad").sel();
+		viz.defs(rg2).stop().offset("0").stopColor(fbc);
+		viz.defs(rg2).stop().offset("1").stopColor(d3.rgb(fbc).darker(2));
 		
-		fl1.append("feComposite").attr("result","composite2").attr("operator","over")
-			.attr("in2","offset").attr("in","SourceGraphic");
+		viz.defs(defs).lG().id("vizgg4"+dg).gradientUnits("userSpaceOnUse")
+			.y1("80").x1("-10").y2("80").x2("10").xlink("#vizgg1"+dg)
 			
-		var fl2 =defs.append("filter").attr("x","-0.3").attr("y","-0.3")
-			.attr("height","1.8").attr("width","1.8").attr("id","vizgg06");
+		var fl1 = viz.defs(defs).filter().id("vizgg5"+dg).sel();
+		viz.defs(fl1).feFlood().result("flood").floodColor("rgb(0,0,0)").floodOpacity("0.6");
+		viz.defs(fl1).feComposite().result("composite1").operator("in").in2("SourceGraphic").in("flood");
+		viz.defs(fl1).feGaussianBlur().result("blur").stdDeviation("2").in("composite1");
+		viz.defs(fl1).feOffset().result("offset").dy("2").dx("2");
+		viz.defs(fl1).feComposite().result("composite2").operator("over").in2("offset").in("SourceGraphic");
 			
-		fl2.append("feGaussianBlur").attr("stdDeviation","2");
+		var fl2 =viz.defs(defs).filter().x("-0.3").y("-0.3").height("1.8").width("1.8").id("vizgg6"+dg).sel();
+		viz.defs(fl2).feGaussianBlur().stdDeviation("2");
 	  }
 	  
 	  gg.setNeedle =function(a){
 		var newAngle=gg.scale()(a)*180/Math.PI+90
 			,oldAngle=gg.scale()(gg.value())*180/Math.PI+90
-			,d3ease = d3.ease(gg.ease());
-			
+			,d3ease = gg.ease()
+			;
 		g.selectAll(".needle").data([a])
 			.transition().duration(gg.duration())
 			.attrTween("transform",function(d){ return iS(oldAngle,newAngle); })
@@ -501,6 +493,46 @@
 	  }
 	  
 	  return gg;
+  }
+  
+  viz.defs = function(_){
+	  var defs ={}, sel=_;
+	  defs.sel =function(){ return sel;}
+	  defs.lG= function(){ sel=sel.append("linearGradient"); return defs; }
+	  defs.rG= function(){ sel=sel.append("radialGradient"); return defs; }
+	  defs.stop= function(){ sel=sel.append("stop"); return defs; }
+	  defs.filter= function(){ sel=sel.append("filter"); return defs; }
+	  defs.feFlood= function(){ sel=sel.append("feFlood"); return defs; }
+	  defs.feComposite= function(){ sel=sel.append("feComposite"); return defs; }
+	  defs.feOffset= function(){ sel=sel.append("feOffset"); return defs; }
+	  defs.feGaussianBlur= function(){ sel=sel.append("feGaussianBlur"); return defs; }
+	  defs.result= function(_){ sel=sel.attr("result",_); return defs; }
+	  defs.floodColor= function(_){ sel=sel.attr("flood-color",_); return defs; }
+	  defs.floodOpacity= function(_){ sel=sel.attr("flood-opacity",_); return defs; }
+	  defs.stdDeviation= function(_){ sel=sel.attr("stdDeviation",_); return defs; }
+	  defs.operator= function(_){ sel=sel.attr("operator",_); return defs; }
+	  defs.height= function(_){ sel=sel.attr("height",_); return defs; }
+	  defs.width= function(_){ sel=sel.attr("width",_); return defs; }
+	  defs.in= function(_){ sel=sel.attr("in",_); return defs; }
+	  defs.in2= function(_){ sel=sel.attr("in2",_); return defs; }
+	  defs.id= function(_){ sel=sel.attr("id",_); return defs; }
+	  defs.fx= function(_){ sel=sel.attr("fx",_); return defs; }
+	  defs.fy= function(_){ sel=sel.attr("fy",_); return defs; }
+	  defs.dx= function(_){ sel=sel.attr("dx",_); return defs; }
+	  defs.dy= function(_){ sel=sel.attr("dy",_); return defs; }
+	  defs.x1= function(_){ sel=sel.attr("x1",_); return defs; }
+	  defs.y1= function(_){ sel=sel.attr("y1",_); return defs; }
+	  defs.x2= function(_){ sel=sel.attr("x2",_); return defs; }
+	  defs.y2= function(_){ sel=sel.attr("y2",_); return defs; }
+  	  defs.x= function(_){ sel=sel.attr("x",_); return defs; }
+  	  defs.y= function(_){ sel=sel.attr("y",_); return defs; }
+  	  defs.r= function(_){ sel=sel.attr("r",_); return defs; }
+	  defs.spreadMethod= function(_){ sel=sel.attr("spreadMethod",_); return defs; }
+  	  defs.gradientUnits= function(_){ sel=sel.attr("gradientUnits",_); return defs; }
+	  defs.xlink= function(_){ sel=sel.attr("xlink:href",_); return defs; }
+	  defs.offset= function(_){ sel=sel.attr("offset",_); return defs; }
+	  defs.stopColor= function(_){ sel=sel.attr("stop-color",_); return defs; }
+	  return defs;
   }
   this.viz=viz;
 }();
