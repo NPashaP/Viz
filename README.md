@@ -1,5 +1,7 @@
 A Collection of templates and layouts in JavaScript for creating data visualizations using D3.
 
+Examples:
+
 - [biPartite I](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
 - [biPartite II](http://bl.ocks.org/NPashaP/fcb09e2cddbe104e209f457d44f166ca)
 - [biPartite III](http://bl.ocks.org/NPashaP/3ba0031d3d555afca4713e5264455025)
