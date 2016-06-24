@@ -6,6 +6,7 @@
 		,keyPrimary, keySecondary, value
 		,width, height, orient, barSize, min, pad
 		,data, fill, g, edgeOpacity
+		,sortPrimary, sortSecondary, edgeMode
 	  ;
 	  function bP(_){
 		g=_;
@@ -61,9 +62,19 @@
 		keyPrimary = _;
 		return bP;		
 	  }
+	  bP.sortPrimary = function(_){ 
+		if(!arguments.length) return typeof sortPrimary !== "undefined" ? sortPrimary : d3.ascending ;
+		sortPrimary = _;
+		return bP;		
+	  }
 	  bP.keySecondary = function(_){ 
 		if(!arguments.length) return typeof keySecondary !== "undefined" ? keySecondary : function(d){ return d[1]; };
 		keySecondary = _;
+		return bP;		
+	  }
+	  bP.sortSecondary = function(_){ 
+		if(!arguments.length) return typeof sortSecondary !== "undefined" ? sortSecondary : d3.ascending;
+		sortSecondary = _;
 		return bP;		
 	  }	  
 	  bP.value = function(_){ 
@@ -111,6 +122,11 @@
 		edgeOpacity = _;
 		return bP;
 	  }
+	  bP.edgeMode = function(_){
+		if(!arguments.length) return typeof edgeMode !== "undefined" ? edgeMode : "curved";
+		edgeMode = _;
+		return bP;
+	  }
 	  bP.bars = function(mb){
 		var mainBars={primary:[], secondary:[]};
 		var subBars= {primary:[], secondary:[]};
@@ -136,26 +152,23 @@
 			var m =bP.min()/2;
 			
 			mainBars.primary.forEach(function(d){
-				if(d.height<m){
-//					d.y=d.y+.5*(d.height-m);
-					d.height=m;
-				}
+				if(d.height<m) d.height=m;
 			});
 			mainBars.secondary.forEach(function(d){
-				if(d.height<m){
-//					d.y=d.y+.5*(d.height-m);
-					d.height=m;
-				}
+				if(d.height<m) d.height=m;
 			});
 		}
 		function calculateMainBars(part){
+				;
 			function v(d){ return isSelKey(d, part) ? bP.value()(d): 0;};
 
 			var ps = d3.nest()
 				.key(part=="primary"? bP.keyPrimary():bP.keySecondary())
+				.sortKeys(part=="primary"? bP.sortPrimary():bP.sortSecondary())
 				.rollup(function(d){ return d3.sum(d,v); })
-				.entries(bP.data());
-
+				.entries(bP.data())
+			;
+			
 			var bars = bpmap(ps, bP.pad(), bP.min(), 0, _or=="vertical" ? bP.height() : bP.width());
 			var bsize = bP.barSize();
 			ps.forEach(function(d,i){ 
@@ -173,19 +186,27 @@
 		}
 		function calculateSubBars(part){
 			function v(d){ return isSelKey(d, part) ? bP.value()(d): 0;};
+			
+			var sort = part=="primary"
+					? function(a,b){ return bP.sortPrimary()(a.key, b.key);}
+					: function(a,b){ return bP.sortSecondary()(a.key, b.key);}
+					
 			var map = d3.map(mainBars[part], function(d){ return d.key});
 			
 			var ps = d3.nest()
 				.key(part=="primary"? bP.keyPrimary():bP.keySecondary())
+				.sortKeys(part=="primary"? bP.sortPrimary():bP.sortSecondary())
 				.key(part=="secondary"? bP.keyPrimary():bP.keySecondary())
+				.sortKeys(part=="secondary"? bP.sortPrimary():bP.sortSecondary())
 				.rollup(function(d){ return d3.sum(d,v); })
 				.entries(bP.data());
-							
+	
 			ps.forEach(function(d){ 
 				var g= map.get(d.key); 
 				var bars = bpmap(d.values, 0, 0
 						,_or=="vertical" ? g.y-g.height : g.x-g.width
 						,_or=="vertical" ? g.y+g.height : g.x+g.width);
+
 				var bsize = bP.barSize();			
 				d.values.forEach(function(t,i){ 
 					subBars[part].push({
@@ -205,33 +226,45 @@
 		}
 		function calculateEdges(){	
 			var map=d3.map(subBars.secondary,function(d){ return d.index;});
+			var eMode= bP.edgeMode();
+			
 			return subBars.primary.map(function(d){
 				var g=map.get(d.index);
 				return {
 					 path:_or === "vertical" 
-						? ["M",d.x+d.width,",",d.y+d.height,"V",d.y-d.height,"L",g.x-g.width,",",g.y-g.height
-							,"V",g.y+g.height,"Z"].join("")
-						: ["M",d.x-d.width,",",d.y+d.height,"H",d.x+d.width,"L",g.x+g.width,",",g.y-g.height
-							,"H",g.x-g.width,"Z"].join("")
+						? edgeVert(d.x+d.width,d.y+d.height,g.x-g.width,g.y+g.height,g.x-g.width,g.y-g.height,d.x+d.width,d.y-d.height)
+						: edgeHoriz(d.x-d.width,d.y+d.height,g.x-g.width,g.y-g.height,g.x+g.width,g.y-g.height,d.x+d.width,d.y+d.height)
 					,primary:d.primary
 					,secondary:d.secondary
 					,value:d.value
 					,percent:d.percent
 				}
 			});
+			function edgeVert(x1,y1,x2,y2,x3,y3,x4,y4){
+				if(eMode=="straight") return ["M",x1,",",y1,"L",x2,",",y2,"L",x3,",",y3,"L",x4,",",y4,"z"].join("")
+				var mx1=(x1+x2)/2,mx3=(x3+x4)/2;
+				return ["M",x1,",",y1,"C",mx1,",",y1," ",mx1,",",y2,",",x2,",",y2,"L"
+						,x3,",",y3,"C",mx3,",",y3," ",mx3,",",y4,",",x4,",",y4,"z"].join("");
+			}
+			function edgeHoriz(x1,y1,x2,y2,x3,y3,x4,y4){
+				if(eMode=="straight") return ["M",x1,",",y1,"L",x2,",",y2,"L",x3,",",y3,"L",x4,",",y4,"z"].join("")
+				var my1=(y1+y2)/2,my3=(y3+y4)/2;
+				return ["M",x1,",",y1,"C",x1,",",my1," ",x2,",",my1,",",x2,",",y2,"L"
+						,x3,",",y3,"C",x3,",",my3," ",x4,",",my3,",",x4,",",y4,"z"].join("");
+			}
 		}
 		function bpmap(a/*array*/, p/*pad*/, m/*min*/, s/*start*/, e/*end*/){
 			var r = m/(e-s-2*a.length*p); // cut-off for ratios
-			var ln =0, lp=0, t=d3.sum(a,function(d){ return d.value;}); // left over count and percent.
-			a.forEach(function(d){ if(d.value < r*t ){ ln+=1; lp+=d.value; }})
+			var ln =0, lp=0, t=d3.sum(a,function(d){ return d.values;}); // left over count and percent.
+			a.forEach(function(d){ if(d.values < r*t ){ ln+=1; lp+=d.values; }})
 			var o= t < 1e-5 ? 0:(e-s-2*a.length*p-ln*m)/(t-lp); // scaling factor for percent.
 			var b=s, ret=[];
 			a.forEach(function(d){ 
-				var v =d.value*o; 
+				var v =d.values*o; 
 				ret.push({
 					 s:b+p+(v<m?.5*(m-v): 0)
 					,e:b+p+(v<m? .5*(m+v):v)
-					,p:t < 1e-5? 0:d.value/t
+					,p:t < 1e-5? 0:d.values/t
 				}); 
 				b+=2*p+(v<m? m:v); 
 			});
@@ -298,49 +331,48 @@
   
   viz.gg = function(){
 	  var innerRadius, outerRadius, startAngle, endAngle, needleColor, innerFaceColor, faceColor
-		,tickColor, domain, value, angleOffset, duration, ease, g, dpg, inTick, outTick
+		,tickColor, domain, value, angleOffset, duration, ease, g, dpg, ticks, majorTicks
+		, minorTickStart, minorTickEnd, majorTickStart, majorTickEnd, labelLocation
 	  ;
 	  var def={
 		innerRadius:20, outerRadius:150, angleOffset:0.7
 		,startAngle:-1.5*Math.PI, endAngle:0.5*Math.PI
-		,inTick:.12, outTick:.2, needleColor:"#de2c2c", innerFaceColor:"#999999", faceColor:"#666666"
+		,minorTickStart:.9, minorTickEnd:.95, majorTickStart:.82, majorTickEnd:.95
+		,needleColor:"#de2c2c", innerFaceColor:"#999999", faceColor:"#666666"
 		,tickColor:"#ffffff", domain:[0,100], duration:500, ease:"cubicInOut"
+		,ticks:d3.range(0,101,2), majorTicks: function(d){ return d%10===0}
+		,labelLocation: .7
 	  };
 	  function gg(_){
 		g=_;
         _.each(function() {
 			var g = d3.select(this);
-			var dom=gg.domain();
 			var a = gg.scale();
-			var it=gg.inTick(), ot=gg.outTick(), or=gg.outerRadius();
-			var ticks=d3.range(dom[0],dom[1]+1,2);
+			var mS=gg.minorTickStart(), mE=gg.minorTickEnd(),MS=gg.majorTickStart(), ME=gg.majorTickEnd();
+			var ticks=gg.ticks(), mT=gg.majorTicks(), lL=gg.labelLocation();
+			var or = gg.outerRadius();
 			
 			g.append("circle").attr("r",or)
 				.style("fill","url(#vizgg3"+dpg+")")
-				.attr("class","vizggouter");
+				.attr("class","face");
 	
 			g.append("circle").attr("r",gg.innerRadius())
 				.style("fill","url(#vizgg2"+dpg+")")
-				.style("filter","url(#vizgg5"+dpg+")");
+				.style("filter","url(#vizgg5"+dpg+")")
+				.attr("class","innerFace");
   
-			var tickg = g.append("g").style("stroke",gg.tickColor());
-			
+			var tickg = g.append("g");
 			tickg.selectAll("line").data(ticks).enter().append("line")
-				.style("stroke-width","2")
-				.attr("x1",function(d){ return or*(.95-it)*Math.cos(a(d));})
-				.attr("y1",function(d){ return or*(.95-it)*Math.sin(a(d));})
-				.attr("x2",function(d){ return or*.95*Math.cos(a(d));})
-				.attr("y2",function(d){ return or*.95*Math.sin(a(d));});
+				.attr("class",function(d){ return mT(d) ? "majorTicks": "minorTicks" })
+				.attr("x1",function(d){ return or*(mT(d)? MS:mS)*Math.cos(a(d));})
+				.attr("y1",function(d){ return or*(mT(d)? MS:mS)*Math.sin(a(d));})
+				.attr("x2",function(d){ return or*(mT(d)? ME:mE)*Math.cos(a(d));})
+				.attr("y2",function(d){ return or*(mT(d)? ME:mE)*Math.sin(a(d));});
   
-			tickg.selectAll("line").filter(function(d){ return d%10===0})
-				.style("stroke-width","3") 
-				.attr("x1",function(d){ return or*(.95-ot)*Math.cos(a(d));})
-				.attr("y1",function(d){ return or*(.95-ot)*Math.sin(a(d));});
-	
-			g.selectAll("text").data(ticks.filter(function(d){ return d%10 === 0}))
-				.enter().append("text").attr("class","vizggtext")
-				.attr("x",function(d){ return or*(.95-ot)*.9*Math.cos(a(d));})
-				.attr("y",function(d){ return or*(.95-ot)*.9*Math.sin(a(d));})
+			g.selectAll("text").data(ticks.filter(mT))
+				.enter().append("text").attr("class","label")
+				.attr("x",function(d){ return or*lL*Math.cos(a(d));})
+				.attr("y",function(d){ return or*lL*Math.sin(a(d));})
 				.attr("dy",3)
 				.text(function(d){ return d;});
 				
@@ -383,14 +415,39 @@
 		angleOffset = _;
 		return gg;
 	  }
-	  gg.inTick = function(_){
-		if(!arguments.length) return typeof inTick !== "undefined" ? inTick : def.inTick;
-		inTick = _;
+	  gg.labelLocation = function(_){
+		if(!arguments.length) return typeof labelLocation !== "undefined" ? labelLocation : def.labelLocation;
+		labelLocation = _;
 		return gg;
 	  }
-	  gg.outTick = function(_){
-		if(!arguments.length) return typeof outTick !== "undefined" ? outTick : def.outTick;
-		outTick = _;
+	  gg.ticks = function(_){
+		if(!arguments.length) return typeof ticks !== "undefined" ? ticks : def.ticks;
+		ticks = _;
+		return gg;
+	  }
+	  gg.majorTicks = function(_){
+		if(!arguments.length) return typeof majorTicks !== "undefined" ? majorTicks : def.majorTicks;
+		majorTicks = _;
+		return gg;
+	  }
+	  gg.minorTickStart = function(_){
+		if(!arguments.length) return typeof minorTickStart !== "undefined" ? minorTickStart : def.minorTickStart;
+		minorTickStart = _;
+		return gg;
+	  }
+	  gg.minorTickEnd = function(_){
+		if(!arguments.length) return typeof minorTickEnd !== "undefined" ? minorTickEnd : def.minorTickEnd;
+		minorTickEnd = _;
+		return gg;
+	  }
+	  gg.majorTickStart = function(_){
+		if(!arguments.length) return typeof majorTickStart !== "undefined" ? majorTickStart : def.majorTickStart;
+		majorTickStart = _;
+		return gg;
+	  }
+	  gg.majorTickEnd = function(_){
+		if(!arguments.length) return typeof majorTickEnd !== "undefined" ? majorTickEnd : def.majorTickEnd;
+		majorTickEnd = _;
 		return gg;
 	  }
 	  gg.needleColor = function(_){
@@ -534,6 +591,7 @@
 	  defs.stopColor= function(_){ sel=sel.attr("stop-color",_); return defs; }
 	  return defs;
   }
+  
   this.viz=viz;
 }();
 
