@@ -1,6 +1,7 @@
 !function(){
-  var viz = { version: "1.0.0", template:{} };
-    
+  var viz = { version: "1.0.3" };
+  var τ =2*Math.PI, π2=Math.PI/2;
+  
   viz.bP = function(){
 	  var key_scale, value_scale
 		,keyPrimary, keySecondary, value
@@ -331,7 +332,7 @@
   
   viz.gg = function(){
 	  var innerRadius, outerRadius, startAngle, endAngle, needleColor, innerFaceColor, faceColor
-		,tickColor, domain, value, angleOffset, duration, ease, g, dpg, ticks, majorTicks
+		, domain, value, angleOffset, duration, ease, g, dpg, ticks, majorTicks
 		, minorTickStart, minorTickEnd, majorTickStart, majorTickEnd, labelLocation
 	  ;
 	  var def={
@@ -339,7 +340,7 @@
 		,startAngle:-1.5*Math.PI, endAngle:0.5*Math.PI
 		,minorTickStart:.9, minorTickEnd:.95, majorTickStart:.82, majorTickEnd:.95
 		,needleColor:"#de2c2c", innerFaceColor:"#999999", faceColor:"#666666"
-		,tickColor:"#ffffff", domain:[0,100], duration:500, ease:"cubicInOut"
+		,domain:[0,100], duration:500, ease:"cubicInOut"
 		,ticks:d3.range(0,101,2), majorTicks: function(d){ return d%10===0}
 		,labelLocation: .7
 	  };
@@ -460,11 +461,6 @@
 		innerFaceColor = _;
 		return gg;
 	  }
-	  gg.tickColor = function(_){
-		if(!arguments.length) return typeof tickColor !== "undefined" ? tickColor : def.tickColor;
-		tickColor = _;
-		return gg;
-	  }
 	  gg.faceColor = function(_){
 		if(!arguments.length) return typeof faceColor !== "undefined" ? faceColor : def.faceColor;
 		faceColor = _;
@@ -552,6 +548,259 @@
 	  return gg;
   }
   
+  viz.ch=function(){
+    var g, data, fill, source, target, value, sort, padding, groups, chords, startAngle
+        ,innerRadius, outerRadius, chordOpacity, defid, labelPadding, labelOrientThreshold
+    ;
+	
+  function ch(_){
+    g=_;
+	var arc=d3.svg.arc().innerRadius(ch.innerRadius()).outerRadius(ch.outerRadius());
+	var target = function(d){ 
+	  return d.source==d.target 
+	          ? {startAngle:d.startAngle,endAngle:d.endAngle}
+			  : {startAngle:d.targetAngle,endAngle:d.targetAngle};
+	}
+	var chord =d3.svg.chord().radius(ch.innerRadius())
+	            .source(function(d){ return d;})
+	            .target(target);
+	
+    if (!chords) relayout();
+	var fill = ch.fill();
+	
+    _.each(function() {
+      var g = d3.select(this);
+	  
+	  var grps = g.selectAll(".groups")
+	             .data(groups)
+                 .enter().append("g").attr("class","groups")
+          .on("mouseover", ch.mouseover)
+          .on("mouseout", ch.mouseout);
+				 
+	  grps.append("path")
+          .style("fill", function(d){ return fill(d.source)})
+          .style("stroke", function(d){ return fill(d.source)})
+          .attr("d", arc);
+				 
+	  var r=(1+ch.labelPadding())*ch.outerRadius();
+	  var labels = grps.append("text").attr("class","label");
+	  var lot = ch.labelOrientThreshold();
+	  
+	  labels.filter(function(d){ return d.endAngle-d.startAngle > lot})
+	    .append("textPath").attr("xlink:href",function(d){ return "#vizch1"+defid+"_"+d.index;})
+		.attr("startOffset","50%")
+		.text(function(d){ return d.source});
+		
+	  function transform(d){
+		  return "rotate("+(angle(d)*180/Math.PI-(angle(d) < Math.PI ? 90:270))+")";
+	  }
+	  
+	  labels.filter(function(d){ return d.endAngle-d.startAngle <= lot})
+	    .attr("x",function(d){ return angle(d) < Math.PI ? r : -r ;})
+	    .attr("y",0)
+		.text(function(d){ return d.source})
+		.style("text-anchor",function(d){return angle(d) < Math.PI ? "start" : "end";})
+		.style("alignment-baseline","central")
+		.attr("transform",transform);
+	  
+      var chords = g.append("g").attr("class", "chords");
+	  
+	  chords.selectAll(".chord")
+            .data(ch.chords())
+            .enter().append("g").attr("class","chord")
+			.append("path")
+            .attr("d", chord)
+            .style("fill", function(d){ return fill(d.target)})
+            .style("opacity", ch.chordOpacity())
+            .style("stroke", function(d){ return fill(d.target)})
+            .on("mouseover", ch.mouseover)
+            .on("mouseout", ch.mouseout)
+		;
+	
+    });
+  }
+  ch.data = function(_){
+    if(!arguments.length) return data;
+    data = _;
+	chords = groups=null;
+    return ch;
+  }
+  ch.fill = function(_){
+    if(!arguments.length) return fill;
+    fill = _;
+    return ch;
+  }
+  ch.chordOpacity = function(_){
+    if(!arguments.length) return typeof chordOpacity !== "undefined" ? chordOpacity : .7;
+    chordOpacity = _;
+    return ch;
+  }
+  ch.innerRadius = function(_){
+    if(!arguments.length) return typeof innerRadius !== "undefined" ? innerRadius : 180;
+    innerRadius = _;
+	chords = groups=null;
+    return ch;
+  }
+  ch.outerRadius = function(_){
+    if(!arguments.length) return typeof outerRadius !== "undefined" ? outerRadius : 200;
+    outerRadius = _;
+	chords = groups=null;
+    return ch;
+  }
+  ch.source = function(_){ 
+    if(!arguments.length) return typeof source !== "undefined" ? source : function(d){ return d[0];} ;
+    source = _;
+	chords = groups=null;
+    return ch;    
+  }
+  ch.target = function(_){ 
+    if(!arguments.length) return typeof target !== "undefined" ? target : function(d){ return d[1];} ;
+    target = _;
+	chords = groups=null;
+    return ch;    
+  }
+  ch.value = function(_){ 
+    if(!arguments.length) return typeof value !== "undefined" ? value : function(d){ return d[2];} ;
+    value = _;
+	chords = groups=null;
+    return ch;    
+  }
+  ch.padding = function(_){ 
+    if(!arguments.length) return typeof padding !== "undefined" ? padding : 0.1 ;
+    padding = _;
+	chords = groups=null;
+    return ch;    
+  }
+  ch.labelPadding = function(_){ 
+    if(!arguments.length) return typeof labelPadding !== "undefined" ? labelPadding : .05 ;
+    labelPadding = _;
+    return ch;    
+  }
+  ch.labelOrientThreshold = function(_){ 
+    if(!arguments.length) return typeof labelOrientThreshold !== "undefined" ? labelOrientThreshold : .1 ;
+    labelOrientThreshold = _;
+    return ch;    
+  }
+  ch.sort = function(_){ 
+    if(!arguments.length) return typeof sort !== "undefined" ? sort : d3.ascending ;
+    sort = _;
+	chords = groups=null;
+    return ch;    
+  }
+  ch.startAngle = function(_){ 
+    if(!arguments.length) return typeof startAngle !== "undefined" ? startAngle : 0.5;
+    startAngle = _;
+	chords = groups=null;
+    return ch;    
+  }
+  ch.chords = function(){
+      if (!chords) relayout();
+      return chords;
+  }
+  ch.groups = function(){
+      if (!groups) relayout();
+      return groups;
+  }
+  ch.mouseover = function(d){	
+    g.selectAll(".chord path")
+        .filter(function(t) { return d.type=="g" ? t.source != d.source 
+              : !(d.source == t.source && d.target ==t.target
+                  ||d.source == t.target && d.target ==t.source); })
+        .transition()
+        .style("opacity", 0);
+  }
+  ch.mouseout = function(d){
+    var opacity=ch.chordOpacity();
+    g.selectAll(".chord path")
+        .filter(function(t) { return d.type=="g" ? t.source != d.source 
+              : !(d.source == t.source && d.target ==t.target
+                  ||d.source == t.target && d.target ==t.source); })
+        .transition()
+        .style("opacity", opacity);
+  }
+  ch.defs = function(svg, did){
+	var defs=svg.append("defs");
+	defid=did;
+	
+    if (!groups) relayout();
+	
+	groups.forEach(function(d){
+	  var or = (1+ch.labelPadding())*ch.outerRadius()+(isBottom(d)? 12:0);
+	  var s=viz_polar(or,d.startAngle-π2), e=viz_polar(or,d.endAngle-π2);
+	  var lgArc = d.endAngle-d.startAngle >=Math.PI? 1: 0;
+	  var pd =isBottom(d) 
+			? ["M",e.x,e.y,"A",or,or,0,lgArc,0,s.x,s.y].join(" ")
+			: ["M",s.x,s.y,"A",or,or,0,lgArc,1,e.x,e.y].join(" ");
+	  viz.defs(defs).path().id("vizch1"+defid+"_"+d.index).d(pd);
+	});	  
+  }
+  function angle(d){
+    return viz_reduceAngle((d.startAngle+d.endAngle)/2);
+  }
+  function isBottom(d){
+    return angle(d) < 1.5*Math.PI && angle(d) >= .5*Math.PI ? 1: 0;
+  }
+  function relayout(){
+    var src = ch.source(), tgt= ch.target(), vlu =ch.value(), dat=ch.data(), n, pad=ch.padding()
+	  ,stAngle=ch.startAngle()
+	;
+	
+	var keys =[];
+	dat.forEach(function(d){ 
+	  if(keys.indexOf(src(d))==-1) keys.push(src(d));
+	  if(keys.indexOf(tgt(d))==-1) keys.push(tgt(d));
+	});
+	n=keys.length;
+	keys =keys.sort(ch.sort());
+	
+	var subgrp = {};
+	keys.forEach(function(k){ subgrp[k]={}; return keys.forEach(function(l){ subgrp[k][l]=0;})});
+	
+	dat.forEach(function(d){ subgrp[src(d)][tgt(d)]+=vlu(d);});
+	
+	var grp={};
+	keys.forEach(function(k){ grp[k] = d3.sum(keys, function(d){ return subgrp[k][d]});});
+	
+	var total =d3.sum(keys,  function(d){ return grp[d]});
+
+	var ratio = (τ-n*pad)/total;
+	var x=stAngle, endAngles={};
+	groups=[];
+	chords=[];
+	keys.forEach(function(k,i){ 
+	  groups.push({ startAngle:x
+	              , endAngle:x+grp[k]*ratio
+				  , value:grp[k]
+				  , source: k
+				  , type:"g"
+				  , index:i
+				  });
+	  endAngles[k]={};
+	  keys.forEach(function(l,j){ 
+	    var x1=x+subgrp[k][l]*ratio;
+		
+	    if(subgrp[k][l] >0) 
+		chords.push({startAngle:x
+	               , endAngle:x1
+				   , value:subgrp[k][l]
+				   , source:k
+				   , target:l
+				   , type:"c"
+				   , index:i
+				   , subindex:j
+		           });
+		
+        endAngles[k][l]=x1;
+	    x=x1;
+	  });
+	  x+=pad;
+	});
+	
+	chords.forEach(function(c){ c.targetAngle = endAngles[c.target][c.source];	});
+  }
+  return ch;
+}
+ 
   viz.defs = function(_){
 	  var defs ={}, sel=_;
 	  defs.sel =function(){ return sel;}
@@ -589,9 +838,17 @@
 	  defs.xlink= function(_){ sel=sel.attr("xlink:href",_); return defs; }
 	  defs.offset= function(_){ sel=sel.attr("offset",_); return defs; }
 	  defs.stopColor= function(_){ sel=sel.attr("stop-color",_); return defs; }
+	  defs.path= function(){ sel=sel.append("path"); return defs; }
+	  defs.d= function(_){ sel=sel.attr("d",_); return defs; }
 	  return defs;
   }
-  
+
+  function viz_reduceAngle(a){
+    while(a>τ) a-=τ;
+    while(a<0) a+=τ;
+    return a;
+  }
+  function viz_polar(r, a){  return {x:r*Math.cos(a), y:r*Math.sin(a)};  }
   this.viz=viz;
 }();
 
