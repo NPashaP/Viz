@@ -1,6 +1,6 @@
 !function(){
   var viz = { version: "1.0.3" };
-  var τ =2*Math.PI, π2=Math.PI/2;
+  var τ =2*Math.PI, π=Math.PI, π2=Math.PI/2;
   
   viz.bP = function(){
 	  var key_scale, value_scale
@@ -337,7 +337,7 @@
 	  ;
 	  var def={
 		innerRadius:20, outerRadius:150, angleOffset:0.7
-		,startAngle:-1.5*Math.PI, endAngle:0.5*Math.PI
+		,startAngle:-1.5*π, endAngle:0.5*π
 		,minorTickStart:.9, minorTickEnd:.95, majorTickStart:.82, majorTickEnd:.95
 		,needleColor:"#de2c2c", innerFaceColor:"#999999", faceColor:"#666666"
 		,domain:[0,100], duration:500, ease:"cubicInOut"
@@ -379,7 +379,7 @@
 				
 			var r = gg.outerRadius()/def.outerRadius;
 
-			var rot=gg.scale()(gg.value())*180/Math.PI+90;
+			var rot=gg.scale()(gg.value())*180/π+90;
 			
 			g.append("g").attr("transform","translate(1,1)")
 				.selectAll(".needleshadow").data([0]).enter().append("g")
@@ -523,8 +523,8 @@
 	  }
 	  
 	  gg.setNeedle =function(a){
-		var newAngle=gg.scale()(a)*180/Math.PI+90
-			,oldAngle=gg.scale()(gg.value())*180/Math.PI+90
+		var newAngle=gg.scale()(a)*180/π+90
+			,oldAngle=gg.scale()(gg.value())*180/π+90
 			,d3ease = gg.ease()
 			;
 		g.selectAll(".needle").data([a])
@@ -551,6 +551,7 @@
   viz.ch=function(){
     var g, data, fill, source, target, value, sort, padding, groups, chords, startAngle
         ,innerRadius, outerRadius, chordOpacity, defid, labelPadding, labelOrientThreshold
+		,valueFormat
     ;
 	
   function ch(_){
@@ -585,27 +586,27 @@
 	  var r=(1+ch.labelPadding())*ch.outerRadius();
 	  var labels = grps.append("text").attr("class","label");
 	  var lot = ch.labelOrientThreshold();
-	  
+	  var vl=.85*ch.innerRadius(), vf=ch.valueFormat();
+
 	  labels.filter(function(d){ return d.endAngle-d.startAngle > lot})
 	    .append("textPath").attr("xlink:href",function(d){ return "#vizch1"+defid+"_"+d.index;})
 		.attr("startOffset","50%")
-		.text(function(d){ return d.source});
+		.text(function(d){ return d.source+" ("+vf(d.value)+")"});
 		
 	  function transform(d){
-		  return "rotate("+(angle(d)*180/Math.PI-(angle(d) < Math.PI ? 90:270))+")";
-	  }
+		  return "rotate("+(angle(d)*180/π-(angle(d) < π ? 90:270))+")";
+	  }	  
 	  
 	  labels.filter(function(d){ return d.endAngle-d.startAngle <= lot})
-	    .attr("x",function(d){ return angle(d) < Math.PI ? r : -r ;})
+	    .attr("x",function(d){ return angle(d) < π ? r : -r ;})
 	    .attr("y",0)
-		.text(function(d){ return d.source})
-		.style("text-anchor",function(d){return angle(d) < Math.PI ? "start" : "end";})
+		.text(function(d){ return d.source+" ("+vf(d.value)+")"})
+		.style("text-anchor",function(d){return angle(d) < π ? "start" : "end";})
 		.style("alignment-baseline","central")
 		.attr("transform",transform);
 	  
-      var chords = g.append("g").attr("class", "chords");
-	  
-	  chords.selectAll(".chord")
+      g.append("g").attr("class", "chords")
+	        .selectAll(".chord")
             .data(ch.chords())
             .enter().append("g").attr("class","chord")
 			.append("path")
@@ -616,7 +617,15 @@
             .on("mouseover", ch.mouseover)
             .on("mouseout", ch.mouseout)
 		;
-	
+		
+	  g.append("g").attr("class", "values")
+	        .selectAll("text")
+            .data(ch.chords())
+            .enter().append("text")
+	        .attr("x",function(d){ return vl*Math.cos(d.targetAngle-π2)})
+	        .attr("y",function(d){ return vl*Math.sin(d.targetAngle-π2)})
+	        .text(function(d){ return vf(d.value);})
+			.style("opacity",0);
     });
   }
   ch.data = function(_){
@@ -701,22 +710,29 @@
       if (!groups) relayout();
       return groups;
   }
+  ch.valueFormat = function(_){
+    if(!arguments.length) return typeof valueFormat !== "undefined" ? valueFormat : function(d){ return d;};
+    valueFormat = _;
+    return ch;    
+  }
   ch.mouseover = function(d){	
-    g.selectAll(".chord path")
-        .filter(function(t) { return d.type=="g" ? t.source != d.source 
-              : !(d.source == t.source && d.target ==t.target
-                  ||d.source == t.target && d.target ==t.source); })
-        .transition()
-        .style("opacity", 0);
+    g.select(".chords").selectAll(".chord")
+	      .filter(function(t) { return selectChords(t,d); })
+		  .select("path").transition().style("opacity", 0);
+		  
+    g.select(".values").selectAll("text")
+	      .filter(function(t) { return !selectChords(t,d); })
+		  .transition().style("opacity", 1);
   }
   ch.mouseout = function(d){
     var opacity=ch.chordOpacity();
-    g.selectAll(".chord path")
-        .filter(function(t) { return d.type=="g" ? t.source != d.source 
-              : !(d.source == t.source && d.target ==t.target
-                  ||d.source == t.target && d.target ==t.source); })
-        .transition()
-        .style("opacity", opacity);
+    g.select(".chords").selectAll(".chord")
+	      .filter(function(t) { return selectChords(t,d); })
+		  .select("path").transition().style("opacity", opacity);
+		  
+    g.select(".values").selectAll("text")
+	      .filter(function(t) { return !selectChords(t,d); })
+		  .transition().style("opacity", 0);		  
   }
   ch.defs = function(svg, did){
 	var defs=svg.append("defs");
@@ -727,7 +743,7 @@
 	groups.forEach(function(d){
 	  var or = (1+ch.labelPadding())*ch.outerRadius()+(isBottom(d)? 12:0);
 	  var s=viz_polar(or,d.startAngle-π2), e=viz_polar(or,d.endAngle-π2);
-	  var lgArc = d.endAngle-d.startAngle >=Math.PI? 1: 0;
+	  var lgArc = d.endAngle-d.startAngle >=π? 1: 0;
 	  var pd =isBottom(d) 
 			? ["M",e.x,e.y,"A",or,or,0,lgArc,0,s.x,s.y].join(" ")
 			: ["M",s.x,s.y,"A",or,or,0,lgArc,1,e.x,e.y].join(" ");
@@ -738,7 +754,7 @@
     return viz_reduceAngle((d.startAngle+d.endAngle)/2);
   }
   function isBottom(d){
-    return angle(d) < 1.5*Math.PI && angle(d) >= .5*Math.PI ? 1: 0;
+    return angle(d) < 1.5*π && angle(d) >= .5*π ? 1: 0;
   }
   function relayout(){
     var src = ch.source(), tgt= ch.target(), vlu =ch.value(), dat=ch.data(), n, pad=ch.padding()
@@ -797,6 +813,11 @@
 	});
 	
 	chords.forEach(function(c){ c.targetAngle = endAngles[c.target][c.source];	});
+  }
+  function selectChords(t,d){
+	  return d.type=="g" ? t.source != d.source 
+              : !(d.source == t.source && d.target ==t.target
+                  ||d.source == t.target && d.target ==t.source);
   }
   return ch;
 }
