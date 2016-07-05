@@ -44,6 +44,7 @@
         	.attr("class","mainBars")
         	.append("rect")
         	.attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh)
+			.style("fill-opacity",0)
 			.on("mouseover",bP.mouseover)
 			.on("mouseout",bP.mouseout);			
 		});
@@ -675,7 +676,7 @@
     return ch;    
   }
   ch.padding = function(_){ 
-    if(!arguments.length) return typeof padding !== "undefined" ? padding : 0.1 ;
+    if(!arguments.length) return typeof padding !== "undefined" ? padding : 0.03 ;
     padding = _;
 	chords = groups=null;
     return ch;    
@@ -697,7 +698,7 @@
     return ch;    
   }
   ch.startAngle = function(_){ 
-    if(!arguments.length) return typeof startAngle !== "undefined" ? startAngle : 0.5;
+    if(!arguments.length) return typeof startAngle !== "undefined" ? startAngle : 0;
     startAngle = _;
 	chords = groups=null;
     return ch;    

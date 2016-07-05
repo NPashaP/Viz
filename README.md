@@ -16,3 +16,13 @@ A Collection of templates and layouts in JavaScript for creating data visualizat
 
 ### Chord (ch)
 - [Chord I](http://bl.ocks.org/npashap/54cf6b3b370e85e3f8374943f5150f53)
+- [chordOpacity](http://bl.ocks.org/NPashaP/33425723e084e3c24853142ec9f104ae)
+- [innerRadius, outerRadius](http://bl.ocks.org/NPashaP/9f64251166d00dbbd6448f68f8f6262b)
+- [source, target, value](http://bl.ocks.org/NPashaP/d7e2010b713b6c56f1c57f4bb83ea74c)
+- [padding](http://bl.ocks.org/NPashaP/2958259c822d209e36bcbedbbc67c849)
+- [labelPadding](http://bl.ocks.org/NPashaP/cefc16ecd89b8a4a8ff14eb79c6ac339)
+- [labelOrientThreshold](http://bl.ocks.org/NPashaP/4c74a26a9a240776af8d58940cda4f05)
+- [sort](http://bl.ocks.org/NPashaP/70166c6bed6b21f897ddfd7b1c9f7081)
+- [startAngle](http://bl.ocks.org/NPashaP/517cadb325dc2b03f477ff667a847408)
+- [valueFormat](http://bl.ocks.org/NPashaP/ad01e3d7caac9399363f822eeb0cca7e)
+- [2015-16 English Premier League Goals](http://bl.ocks.org/NPashaP/ba4c802d5ef68f70c019a9706f77ebf1)
