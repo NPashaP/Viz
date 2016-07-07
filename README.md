@@ -15,10 +15,10 @@ A Collection of templates and layouts in JavaScript for creating data visualizat
 - [duration](http://bl.ocks.org/NPashaP/080dd1cdc1d24285fbaf876968731a2e)
 - [edgeOpacity](http://bl.ocks.org/NPashaP/d146c945078f3d5994d4be8e849a8477)
 - [edgeMode](http://bl.ocks.org/NPashaP/effd6732b19afeecfd1818002eab307b)
-- [Horizontal Example](http://bl.ocks.org/NPashaP/5a31486cea3f246c2e7dfd56937aeee0)
-- [Double Vertical bP with labels](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
-- [Adding labels](http://bl.ocks.org/NPashaP/3ba0031d3d555afca4713e5264455025)
 - [Linking multiple biPartites](http://bl.ocks.org/NPashaP/fcb09e2cddbe104e209f457d44f166ca)
+- [Horizontal Example](http://bl.ocks.org/NPashaP/5a31486cea3f246c2e7dfd56937aeee0)
+- [Adding labels](http://bl.ocks.org/NPashaP/3ba0031d3d555afca4713e5264455025)
+- [Double Vertical bP with labels](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
 
 
 
