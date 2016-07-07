@@ -6,7 +6,7 @@
 	  var key_scale, value_scale
 		,keyPrimary, keySecondary, value
 		,width, height, orient, barSize, min, pad
-		,data, fill, g, edgeOpacity
+		,data, fill, g, edgeOpacity, duration
 		,sortPrimary, sortSecondary, edgeMode
 	  ;
 	  function bP(_){
@@ -289,7 +289,7 @@
 			
 		  e.filter(function(t){ return t[d.part] === d.key;})
 			.transition().duration(bP.duration())
-			.style("fill-opacity",0.5)
+			.style("fill-opacity",bP.edgeOpacity())
 			.attr("d",function(d){ return d.path});	
 			
 		  e.filter(function(t){ return t[d.part] !== d.key;})
@@ -304,7 +304,7 @@
 		}
 	  bP.mouseout = function(d){
 		  var newbars = bP.bars();
-			
+					  
 		  g.selectAll(".mainBars").filter(function(r){ return r.part===d.part && r.key === d.key})
 			.select("rect").style("stroke-opacity", 0);
 		  

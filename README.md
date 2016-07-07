@@ -3,11 +3,26 @@ A Collection of templates and layouts in JavaScript for creating data visualizat
 ## Examples
 
 ### biPartite (bP)
-- [biPartite I](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
-- [biPartite II](http://bl.ocks.org/NPashaP/fcb09e2cddbe104e209f457d44f166ca)
-- [biPartite III](http://bl.ocks.org/NPashaP/3ba0031d3d555afca4713e5264455025)
-- [biPartite IV](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
-- [biPartite V](http://bl.ocks.org/NPashaP/5a31486cea3f246c2e7dfd56937aeee0)
+-[Basic](http://bl.ocks.org/NPashaP/ba2c0fee4cfde38fc3aa788013316584)
+-[orient](http://bl.ocks.org/NPashaP/7222132b5e517d4bd4404ff3cfb1ebde)
+-[fill](http://bl.ocks.org/NPashaP/15084a19c660ea8af0143ca12aae7453)
+-[keyPrimary, keySecondary, value](http://bl.ocks.org/NPashaP/a97b84dd96b9dbb7fd8d1b2acbb5f4ca)
+-[sortPrimary, sortSecondary](http://bl.ocks.org/NPashaP/d61e36d237bca061125bac66d86026d3)
+-[width, height](http://bl.ocks.org/NPashaP/aeef4383faf3a5885d95799e4cfdd220)
+-[barSize](http://bl.ocks.org/NPashaP/63880bcdfd46d4e5fdda6149a9967a41)
+-[min](http://bl.ocks.org/NPashaP/8ccce6934a74347ab2ea8182abacccbd)
+-[pad](http://bl.ocks.org/NPashaP/6aef64211f45a847aad1c2c77e50a1cb)
+-[duration](http://bl.ocks.org/NPashaP/080dd1cdc1d24285fbaf876968731a2e)
+-[edgeOpacity](http://bl.ocks.org/NPashaP/d146c945078f3d5994d4be8e849a8477)
+-[edgeMode](http://bl.ocks.org/NPashaP/effd6732b19afeecfd1818002eab307b)
+-[Horizontal Example](http://bl.ocks.org/NPashaP/5a31486cea3f246c2e7dfd56937aeee0)
+-[Double Vertical bP with labels](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
+-[Adding labels](http://bl.ocks.org/NPashaP/3ba0031d3d555afca4713e5264455025)
+-[Linking multiple biPartites](http://bl.ocks.org/NPashaP/fcb09e2cddbe104e209f457d44f166ca)
+
+
+
+
 
 ### Gauge (gg)
 - [Gauge I](http://bl.ocks.org/NPashaP/59c2c7483fb61070486835d15c807941)
