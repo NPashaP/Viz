@@ -1,4 +1,4 @@
-A Collection of layouts in JavaScript for creating data visualizations using D3.
+A Collection of visualization layouts in JavaScript and D3.
 
 ## Examples
 
