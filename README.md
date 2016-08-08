@@ -20,6 +20,7 @@ A Collection of visualization layouts in JavaScript and D3.
 - [Adding labels](http://bl.ocks.org/NPashaP/3ba0031d3d555afca4713e5264455025)
 - [Change data](http://bl.ocks.org/npashap/2684287c2526c837b04ce873901c918d)
 - [Double Vertical bP with labels](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
+- [Comparison to D3.chord](http://bl.ocks.org/npashap/2d76492981106691cdcf843d7e3f765a)
 
 
 

@@ -1,5 +1,5 @@
 !function(){
-  var viz = { version: "1.1.1" };
+  var viz = { version: "1.1.2" };
   var τ =2*Math.PI, π=Math.PI, π2=Math.PI/2;
   
   viz.bP = function(){
@@ -571,7 +571,7 @@
     var   source=function(d){ return d[0];}
 		, target=function(d){ return d[1];}
 		, value=function(d){ return d[2];}
-		, valueFormat=function(d){ return d;}
+		, label=function(d){ return d.source+" ("+d.value+")"}
 		, sort=d3.ascending
 		, padding=0.03, startAngle=0, innerRadius=180, outerRadius=200, chordOpacity=.7
 		, labelPadding=0.02, min=0,duration=500, reComputeLayout=true
@@ -600,14 +600,14 @@
 				 
 	  var labels = grps.append("text").attr("class","label");
 	  var r=(1+ch.labelPadding())*ch.outerRadius();
-	  var vf=ch.valueFormat();
+	  var lbl = ch.label();
 
 	  labels.filter(function(d){ return d.type=="g"})
 	    .attr("x",function(d){ return r*Math.cos(angle(d));})
 	    .attr("y",function(d){ return r*Math.sin(angle(d));})
-		.text(function(d){ return d.source+" ("+vf(d.value)+")"})
+		.text(lbl)
 		.style("text-anchor",function(d){var a =angle(d); return a < π2 || a>τ-π2 ? "start" : "end";})
-          .each(function(d) { this._current = d; })
+        .each(function(d) { this._current = d; })
 		;
 		
 	  grps.append("path")
@@ -715,9 +715,9 @@
       if (reComputeLayout) relayout();
       return groups;
   }
-  ch.valueFormat = function(_){
-    if(!arguments.length) return valueFormat;
-    valueFormat = _;
+  ch.label = function(_){
+    if(!arguments.length) return label;
+    label = _;
     return ch;    
   }
   ch.mouseover = function(d){	
@@ -759,7 +759,7 @@
 	
 	var gp = g.selectAll(".groups").data(f? newgroups : ch.groups());
 	var r=(1+ch.labelPadding())*ch.outerRadius();
-	var vf=ch.valueFormat();
+	var lbl = ch.label();
 	
 	gp.select("path").transition().duration(duration).attrTween("d", arcTween);
 	
@@ -767,7 +767,7 @@
 	    .transition().duration(duration)
 	    .attrTween("x",labelTweenx)
 	    .attrTween("y",labelTweeny)
-		.text(function(d){ return d.source+" ("+vf(d.value)+")"})
+		.text(lbl)
 		.style("text-anchor",function(d){var a =angle(d); return a < π2 || a>τ-π2 ? "start" : "end";});
 
     var opacity =ch.chordOpacity();	  
