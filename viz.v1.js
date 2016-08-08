@@ -1,5 +1,5 @@
 !function(){
-  var viz = { version: "1.1.0" };
+  var viz = { version: "1.1.1" };
   var τ =2*Math.PI, π=Math.PI, π2=Math.PI/2;
   
   viz.bP = function(){
@@ -274,6 +274,26 @@
 			return ret;
 		}	  
 	  }	  
+	  bP.update = function(_data){
+	    data = _data;
+		var b1 = bP.bars();
+		var dur = bP.duration();
+		
+		g.selectAll(".subBars").data(b1.subBars).transition().duration(dur)
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
+        	.select("rect")
+        	.attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh);
+						 
+        g.selectAll(".edges").data(b1.edges).transition().duration(dur)
+        	.attr("d",function(d){ return d.path; })
+			.style("fill-opacity",bP.edgeOpacity())
+        	 
+        g.selectAll(".mainBars").data(b1.mainBars).transition().duration(dur)
+			.attr("transform", function(d){ return "translate("+d.x+","+d.y+")";})
+        	.select("rect")
+        	.attr("x",fx).attr("y",fy).attr("width",fw).attr("height",fh)
+			.style("fill-opacity",0)
+	  }
 	  bP.mouseover = function(d){
 		  var newbars = bP.bars(d);
 		  g.selectAll(".mainBars").filter(function(r){ return r.part===d.part && r.key === d.key})
