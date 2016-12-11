@@ -22,12 +22,6 @@ A Collection of visualization layouts in JavaScript and D3.
 - [Double Vertical bP with labels](http://bl.ocks.org/NPashaP/cd80ab54c52f80c4d84cad0ba9da72c2)
 
 
-
-### Gauge (gg)
-- [Gauge I](http://bl.ocks.org/NPashaP/59c2c7483fb61070486835d15c807941)
-- [Gauge II](http://bl.ocks.org/NPashaP/fe7110d99cae2bdb322ff329cd36dfa7)
-- [Gauge III](http://bl.ocks.org/NPashaP/a9cefa705b63ff4ab2297b855a79f1aa)
-
 ### Chord (ch)
 - [Chord I](http://bl.ocks.org/npashap/54cf6b3b370e85e3f8374943f5150f53)
 - [chordOpacity](http://bl.ocks.org/NPashaP/33425723e084e3c24853142ec9f104ae)
@@ -40,3 +34,27 @@ A Collection of visualization layouts in JavaScript and D3.
 - [valueFormat](http://bl.ocks.org/NPashaP/ad01e3d7caac9399363f822eeb0cca7e)
 - [2015-16 English Premier League Goals](http://bl.ocks.org/NPashaP/ba4c802d5ef68f70c019a9706f77ebf1)
 - [Comparison to D3.chord](http://bl.ocks.org/npashap/2d76492981106691cdcf843d7e3f765a)
+
+
+### Bar (bar)
+- [Basic Example](http://bl.ocks.org/NPashaP/e522b9e9c5695863fa720173c1ee4641)
+- [Dock](http://bl.ocks.org/NPashaP/8369d57de7d3e9cb527ccae4b920d53b)
+- [Width, Height](http://bl.ocks.org/NPashaP/b44f6a3d4ce21e1d424009b1ace6edcc)
+- [innerPadding, outerPadding](http://bl.ocks.org/NPashaP/2b8c769990954f8d88d658effee74949)
+- [Value](http://bl.ocks.org/NPashaP/b269fb567f7ea6e6aacf594ee52c8a37)
+- [keyPrimary](http://bl.ocks.org/NPashaP/392817fd8555a35120145a0e7ffd0ad2)
+- [keySecondary](http://bl.ocks.org/NPashaP/9b0067ef0cbc9df995be4d41b16d2d6a)
+- [sortPrimary](http://bl.ocks.org/NPashaP/d001165b9157fe4311782eef78419a4d)
+- [sortSecondary](http://bl.ocks.org/NPashaP/097a5dc2139a48189df1e558ee39fa0b)
+- [valuePrimary](http://bl.ocks.org/NPashaP/ae88a3f6d8124108321056108aefcd9f)
+- [valueSecondary](http://bl.ocks.org/NPashaP/836e1e95f79db3cc6aa40b9e4892b2ab)
+- [Removing value labels](http://bl.ocks.org/NPashaP/51bcc7d32e72f377f9b775dbd8556dba)
+- [Relocate value labels](http://bl.ocks.org/NPashaP/8ba964986c56fb669af107ead9cb3a81)
+- [Fill by primary key](http://bl.ocks.org/NPashaP/c2ee8555d56e08d0e7e4c8fbca025875)
+- [Fill by secondary key](http://bl.ocks.org/NPashaP/02da079407dad28f62c145b19edc7301)
+
+
+### Gauge (gg)
+- [Gauge I](http://bl.ocks.org/NPashaP/59c2c7483fb61070486835d15c807941)
+- [Gauge II](http://bl.ocks.org/NPashaP/fe7110d99cae2bdb322ff329cd36dfa7)
+- [Gauge III](http://bl.ocks.org/NPashaP/a9cefa705b63ff4ab2297b855a79f1aa)

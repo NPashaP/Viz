@@ -1,5 +1,5 @@
 !function(){
-  var viz = { version: "1.1.2" };
+  var viz = { version: "1.1.5" };
   var τ =2*Math.PI, π=Math.PI, π2=Math.PI/2;
   
   viz.bP = function(){
@@ -1024,6 +1024,165 @@
 	  defs.path= function(){ sel=sel.append("path"); return defs; }
 	  defs.d= function(_){ sel=sel.attr("d",_); return defs; }
 	  return defs;
+  }
+  viz.bar = function(){
+	  
+	  function bar(_){ 
+		g=_;
+        _.each(function() {
+          var g = d3.select(this);
+
+		  var bars = bar.bars();
+		  var dock = bar.dock();
+		  var top =(dock=='t'), bot=(dock=='b'), left=(dock=='l'), rght=(dock=='r');
+		  var topbot = (dock=='t' || dock=='b');
+		
+		  
+		  var primaryBars = g.selectAll(".primarybars")
+				.data(bars).enter().append("g").attr("class","primaryBars")
+				.attr("transform",function(d){ return "translate("+d.x+","+d.y+")"; });
+						  
+		  var secondaryBars = primaryBars.selectAll(".secondaryBars").data(function(d){ return d.values;})
+			.enter().append("g").attr("class","secondaryBars")
+			.attr("transform",function(d){ return "translate("+d.x+","+d.y+")"; });
+			
+		  var fill = bar.fill();
+			
+		  var s = secondaryBars.append("rect")
+			.attr("width",viz_width)
+			.attr("height",viz_height);
+			
+		  if(fill !== undefined) s.style("fill",fill);
+		  
+		  primaryBars.append("text").attr("class","primaryvalue")//t
+			.attr("x",topbot ? viz_width2 : left ? viz_width : 0)
+			.attr("y", !topbot ? viz_height2 : top ? viz_height : 0)
+			.attr("dy",top ? 12 : bot ? -6 : 6)
+			.attr("dx",topbot ? 0 : left ? 6 : - 6)
+			.style("text-anchor",left ? "start" : rght ? "end" : "middle" )
+			.text(bar.valuePrimary());
+
+		  secondaryBars.append("text").attr("class","secondaryvalue")
+			.attr("x",viz_width2).attr("y",viz_height2)
+			.attr("dy",6).attr("dx",6)
+			.text(bar.valueSecondary())
+			.style("text-anchor","middle");
+
+		});
+	  }
+	  bar.data   = viz_assign(bar);
+	  bar.width  = viz_assign_default(bar, 400 );
+	  bar.height = viz_assign_default(bar, 400 );
+	  bar.dock   = viz_assign_default(bar, 'b');
+	  bar.fill   = viz_assign_default(bar, undefined );
+	  bar.paddingInner 	= viz_assign_default(bar, 0.1 );
+	  bar.paddingOuter 	= viz_assign_default(bar, 0.1 );	
+	  bar.value	  		= viz_assign_default(bar, viz_d1);
+	  bar.keyPrimary	= viz_assign_default(bar, viz_d0);	  
+	  bar.keySecondary	= viz_assign_default(bar, undefined );	  
+	  bar.sortPrimary	= viz_assign_default(bar, d3.ascending );
+	  bar.sortSecondary	= viz_assign_default(bar, d3.ascending );
+	  bar.valuePrimary  = viz_assign_default(bar, viz_value );
+	  bar.valueSecondary= viz_assign_default(bar, viz_value );
+	  bar.primaryKeys =function(){
+		 return d3.set(data,bar.keyPrimary()).values().sort(bar.sortPrimary());
+	  }
+	  bar.keyScale = function(){
+		  var dock = bar.dock();
+		  var range = {'l':bar.height(), 'r':bar.height(),'t':bar.width(),'b':bar.width()};
+		  
+		  return d3.scaleBand()
+			.domain(bar.primaryKeys())
+			.range([0, range[dock]])
+			.paddingInner(bar.paddingInner())
+			.paddingOuter(bar.paddingOuter());
+	  }
+	  function nest(){
+		var noSecondary = (bar.keySecondary()===undefined);
+		var ps = d3.nest().key(bar.keyPrimary()).sortKeys(bar.sortPrimary());
+
+		if(!noSecondary) ps = ps.key(bar.keySecondary()).sortKeys(bar.sortSecondary());
+
+		var v = bar.value();
+		ps = ps.rollup(function(d){ return d3.sum(d,v); }).entries(bar.data());
+		if(noSecondary) ps.forEach(function(d){ d.values=[{value:d.value}]; delete d.value;});
+		return ps;
+	  }	  
+	  bar.valueScale = function(){		  
+		var dock = bar.dock();
+		var topbot = (dock=='t' || dock=='b');
+		var ps = nest();
+		
+	    return d3.scaleLinear()
+			.domain([0, d3.max(ps, function(d){ return d3.sum(d.values, viz_value); })])
+			.range([0, topbot ? bar.height() : bar.width()])
+	  }
+	  bar.bars = function(){
+		var data= bar.data();
+		var h=bar.height(), w=bar.width();
+		var dock = bar.dock();
+		var top =(dock=='t'), bot=(dock=='b'), left=(dock=='l'), rght=(dock=='r');
+		var topbot = (dock=='t' || dock=='b');		
+		var ps = nest();		
+		var keyScale = bar.keyScale();
+		var valueScale = d3.scaleLinear()
+			.domain([0, d3.max(ps, function(d){ return d3.sum(d.values, viz_value); })])
+			.range([0, topbot ? h : w]);
+		var bw = keyScale.bandwidth();
+		
+		ps.forEach(function(d){
+		  d.value = d3.sum(d.values,viz_value);
+		  d.width = topbot ? bw : valueScale(d.value) ;  
+		  d.height= topbot ? valueScale(d.value) : bw;
+		  d.x = topbot ? keyScale(d.key) : rght ? w - d.width : 0 ;
+		  d.y = !topbot ? keyScale(d.key) : bot ? h - d.height : 0;
+	
+		  var z = bot ? d.height : rght ? d.width : 0;
+		  var dz =0;
+		  d.values.forEach(function(v){
+			 v.primaryKey = d.key;
+			 v.secondaryKey = v.key;
+			 delete v.key;
+			 dz = valueScale(v.value)
+			 v.width  = topbot ? bw : dz;
+			 v.height = topbot ? dz : bw;
+			 v.x = left ? z : rght ? z-=dz : 0;
+			 v.y = top ? z : bot ? z-=dz : 0;
+			 if(left || top) z+=dz;
+		  })
+		});	
+		return ps;		
+	  }
+	  return bar;
+	}
+	
+  function viz_d(d){ return d}
+  function viz_d0(d){ return d[0]}
+  function viz_d1(d){ return d[1]}
+  function viz_x(d){ return d.x}
+  function viz_y(d){ return d.y}
+  function viz_height(d){ return d.height}
+  function viz_width(d){ return d.width}
+  function viz_height2(d){ return d.height/2}
+  function viz_width2(d){ return d.width/2}
+  function viz_key(d){ return d.key}
+  function viz_value(d){ return d.value}
+  
+  function viz_assign(o){
+	var x;
+    return function(_){
+      if(!arguments.length) return x;
+      x = _;
+      return o;
+    }
+  }
+  function viz_assign_default(o,d){
+	var x;
+    return function(_){
+	  if(!arguments.length) return typeof x !== "undefined" ? x : d ;
+	  x = _;
+	  return o;		
+    }
   }
 
   function viz_reduceAngle(a){
