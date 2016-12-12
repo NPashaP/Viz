@@ -40,7 +40,7 @@ A Collection of visualization layouts in JavaScript and D3.
 - [Basic Example](http://bl.ocks.org/NPashaP/e522b9e9c5695863fa720173c1ee4641)
 - [Dock](http://bl.ocks.org/NPashaP/8369d57de7d3e9cb527ccae4b920d53b)
 - [Width, Height](http://bl.ocks.org/NPashaP/b44f6a3d4ce21e1d424009b1ace6edcc)
-- [innerPadding, outerPadding](http://bl.ocks.org/NPashaP/2b8c769990954f8d88d658effee74949)
+- [paddingInner, paddingOuter](http://bl.ocks.org/NPashaP/2b8c769990954f8d88d658effee74949)
 - [Value](http://bl.ocks.org/NPashaP/b269fb567f7ea6e6aacf594ee52c8a37)
 - [keyPrimary](http://bl.ocks.org/NPashaP/392817fd8555a35120145a0e7ffd0ad2)
 - [keySecondary](http://bl.ocks.org/NPashaP/9b0067ef0cbc9df995be4d41b16d2d6a)
