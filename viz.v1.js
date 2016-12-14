@@ -1071,7 +1071,7 @@
 		});
 	  }
 	  bar.data   = viz_assign(bar);
-	  bar.width  = viz_assign_default(bar, 600 );
+	  bar.width  = viz_assign_default(bar, 400 );
 	  bar.height = viz_assign_default(bar, 400 );
 	  bar.dock   = viz_assign_default(bar, 'b');
 	  bar.fill   = viz_assign_default(bar, undefined );
