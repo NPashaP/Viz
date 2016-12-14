@@ -52,6 +52,8 @@ A Collection of visualization layouts in JavaScript and D3.
 - [Relocate value labels](http://bl.ocks.org/NPashaP/8ba964986c56fb669af107ead9cb3a81)
 - [Fill by primary key](http://bl.ocks.org/NPashaP/c2ee8555d56e08d0e7e4c8fbca025875)
 - [Fill by secondary key](http://bl.ocks.org/NPashaP/02da079407dad28f62c145b19edc7301)
+- [Add Key Axis](http://bl.ocks.org/npashap/84a601edea7c7353d1050ce33a4ffb85)
+- [Add Value Axis](http://bl.ocks.org/npashap/4bd7aed5e17dd5d4d29494135970876a)
 
 
 ### Gauge (gg)
