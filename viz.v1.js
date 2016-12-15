@@ -1084,6 +1084,7 @@
 	  bar.sortSecondary	= viz_assign_default(bar, d3.ascending );
 	  bar.valuePrimary  = viz_assign_default(bar, viz_value );
 	  bar.valueSecondary= viz_assign_default(bar, viz_value );
+	  bar.valueDomain	= viz_assign_default(bar, undefined );
 	  bar.primaryKeys =function(){
 		 return d3.set(data,bar.keyPrimary()).values().sort(bar.sortPrimary());
 	  }
@@ -1109,14 +1110,17 @@
 		return ps;
 	  }	  
 	  bar.valueScale = function(){		  
-		var dock = bar.dock();
-		
+		var dock = bar.dock();		
 		var bot=(dock=='b'), left=(dock=='l'), rght=(dock=='r');
-		var ps = nest(), h= bar.height(), w=bar.width();
+		var h= bar.height(), w=bar.width();
+		var range = left ? [0, w] : rght ? [w, 0] : bot ? [h,0] : [0,h];
+		
+		var domain= bar.valueDomain();
+		if(domain == undefined){
+			domain = [0, d3.max(nest(), function(d){ return d3.sum(d.values, viz_value); })];
+		}
 				
-	    return d3.scaleLinear()
-			.domain([0, d3.max(ps, function(d){ return d3.sum(d.values, viz_value); })])
-			.range(left ? [0, w] : rght ? [w, 0] : bot ? [h,0] : [0,h]);
+	    return d3.scaleLinear().domain(domain).range(range);
 	  }
 	  bar.bars = function(){
 		var data= bar.data();
@@ -1126,9 +1130,13 @@
 		var topbot = (dock=='t' || dock=='b');		
 		var ps = nest();		
 		var keyScale = bar.keyScale();
-		var valueScale = d3.scaleLinear()
-			.domain([0, d3.max(ps, function(d){ return d3.sum(d.values, viz_value); })])
-			.range([0, topbot ? h : w]);
+		
+		var domain= bar.valueDomain();
+		if(domain == undefined){
+			domain = [0, d3.max(ps, function(d){ return d3.sum(d.values, viz_value); })];
+		}
+		
+		var valueScale = d3.scaleLinear().domain(domain).range([0, topbot ? h : w]);
 		var bw = keyScale.bandwidth();
 		
 		ps.forEach(function(d){

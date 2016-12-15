@@ -54,7 +54,7 @@ A Collection of visualization layouts in JavaScript and D3.
 - [Fill by secondary key](http://bl.ocks.org/NPashaP/02da079407dad28f62c145b19edc7301)
 - [Add Key Axis](http://bl.ocks.org/npashap/84a601edea7c7353d1050ce33a4ffb85)
 - [Add Value Axis](http://bl.ocks.org/npashap/4bd7aed5e17dd5d4d29494135970876a)
-
+- [valueDomain](http://bl.ocks.org/npashap/05af8ecea7b70b71f2ab19b592287369)
 
 ### Gauge (gg)
 - [Gauge I](http://bl.ocks.org/NPashaP/59c2c7483fb61070486835d15c807941)
