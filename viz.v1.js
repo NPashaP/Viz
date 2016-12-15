@@ -1,5 +1,5 @@
 !function(){
-  var viz = { version: "1.1.6" };
+  var viz = { version: "1.1.7" };
   var τ =2*Math.PI, π=Math.PI, π2=Math.PI/2;
   
   viz.bP = function(){
@@ -1052,22 +1052,29 @@
 			.attr("width",viz_width)
 			.attr("height",viz_height);
 			
-		  if(fill !== undefined) s.style("fill",fill);
+		  var l = bar.paddingLabel();
 		  
-		  primaryBars.append("text").attr("class","primaryvalue")//t
-			.attr("x",topbot ? viz_width2 : left ? viz_width : 0)
-			.attr("y", !topbot ? viz_height2 : top_ ? viz_height : 0)
-			.attr("dy",top_ ? 12 : bot ? -6 : 6)
-			.attr("dx",topbot ? 0 : left ? 6 : - 6)
-			.style("text-anchor",left ? "start" : rght ? "end" : "middle" )
+		  if(fill !== undefined) s.style("fill",fill);
+		  primaryBars.append("text").attr("class","primaryvalue")
+			.attr("x", function(d){ return d.wf*d.width;})
+			.attr("y", function(d){ return d.hf*d.height;})
+			.attr("dx",function(d){ return 2*l*(d.wf-.5);})
+			.attr("dy",function(d){ return topbot ? (d.hf ? 3*l : -l): l;})
+			.style("text-anchor",function(d){ return topbot ? 'middle' : d.wf ? 'start' : 'end'; })
 			.text(bar.valuePrimary());
 
+		  primaryBars.append("text").attr("class","primarykey")
+			.attr("x", function(d){ return (1-d.wf)*d.width;})
+			.attr("y", function(d){ return (1-d.hf)*d.height;})
+			.attr("dx",function(d){ return !topbot ? (d.wf ? -l : l): 0;})
+			.attr("dy",function(d){ return  topbot ? (d.hf ? -l : 3*l): l;})
+			.style("text-anchor",function(d){ return topbot ? 'middle' : d.wf ? 'end' : 'start'; })
+			.text(viz_key);
+			
 		  secondaryBars.append("text").attr("class","secondaryvalue")
-			.attr("x",viz_width2).attr("y",viz_height2)
-			.attr("dy",6).attr("dx",6)
+			.attr("x",viz_width2).attr("y",viz_height2).attr("dy",l)
 			.text(bar.valueSecondary())
 			.style("text-anchor","middle");
-
 		});
 	  }
 	  bar.data   = viz_assign(bar);
@@ -1077,6 +1084,7 @@
 	  bar.fill   = viz_assign_default(bar, undefined );
 	  bar.paddingInner 	= viz_assign_default(bar, 0.1 );	
 	  bar.paddingOuter 	= viz_assign_default(bar, 0.1 );	
+	  bar.paddingLabel 	= viz_assign_default(bar, 6 );	
 	  bar.value	  		= viz_assign_default(bar, viz_d1);
 	  bar.keyPrimary	= viz_assign_default(bar, viz_d0);	  
 	  bar.keySecondary	= viz_assign_default(bar, undefined );	  
@@ -1117,7 +1125,10 @@
 		
 		var domain= bar.valueDomain();
 		if(domain == undefined){
-			domain = [0, d3.max(nest(), function(d){ return d3.sum(d.values, viz_value); })];
+			var ps = nest();
+			var min = d3.min(ps, function(d){ return d3.sum(d.values, viz_value); })
+			var max = d3.max(ps, function(d){ return d3.sum(d.values, viz_value); });
+			domain = [Math.min(0,min), max];
 		}
 				
 	    return d3.scaleLinear().domain(domain).range(range);
@@ -1132,32 +1143,41 @@
 		var keyScale = bar.keyScale();
 		
 		var domain= bar.valueDomain();
-		if(domain == undefined){
-			domain = [0, d3.max(ps, function(d){ return d3.sum(d.values, viz_value); })];
+		var range = left ? [0, w] : rght ? [w, 0] : bot ? [h,0] : [0,h];
+		if(domain == undefined){			
+			var min = d3.min(ps, function(d){ return d3.sum(d.values, viz_value); })
+			var max = d3.max(ps, function(d){ return d3.sum(d.values, viz_value); });
+			domain = [Math.min(0,min), max];
 		}
 		
-		var valueScale = d3.scaleLinear().domain(domain).range([0, topbot ? h : w]);
+		var valueScale = d3.scaleLinear().domain(domain).range(range);
 		var bw = keyScale.bandwidth();
-		
+		var d0 = valueScale(0);
 		ps.forEach(function(d){
 		  d.value = d3.sum(d.values,viz_value);
-		  d.width = topbot ? bw : valueScale(d.value) ;  
-		  d.height= topbot ? valueScale(d.value) : bw;
-		  d.x = topbot ? keyScale(d.key) : rght ? w - d.width : 0 ;
-		  d.y = !topbot ? keyScale(d.key) : bot ? h - d.height : 0;
+		  var d1 = valueScale(d.value), absd =Math.abs(d1-d0), mind=Math.min(d0, d1);
+		  
+		  d.width =  topbot ? bw : absd;  
+		  d.height= !topbot ? bw : absd;
+		  d.x =  topbot ? keyScale(d.key) : mind;
+		  d.y = !topbot ? keyScale(d.key) : mind;
+		  d.wf=  topbot ? .5 : left ? (d.value < 0 ? 0 : 1) : (d.value < 0 ? 1 : 0);
+		  d.hf= !topbot ? .5 : bot  ? (d.value < 0 ? 1 : 0) : (d.value < 0 ? 0 : 1);
 	
-		  var z = bot ? d.height : rght ? d.width : 0;
-		  var dz =0;
+		  var z = bot ? 0 : rght ? 0 : 0;
 		  d.values.forEach(function(v){
 			 v.primaryKey = d.key;
 			 v.secondaryKey = v.key;
 			 delete v.key;
-			 dz = valueScale(v.value)
-			 v.width  = topbot ? bw : dz;
-			 v.height = topbot ? dz : bw;
-			 v.x = left ? z : rght ? z-=dz : 0;
-			 v.y = top_ ? z : bot ? z-=dz : 0;
-			 if(left || top_) z+=dz;
+			 var v0 = valueScale(z)
+				,v1 = valueScale(z+=v.value)
+				,absv = Math.abs(v1 - v0)
+				,minv = Math.min(v0, v1);
+			 
+			 v.width  = !topbot ? absv : bw;
+			 v.height =  topbot ? absv : bw;
+			 v.x = !topbot ? minv - d.x : 0;
+			 v.y =  topbot ? minv - d.y : 0;
 		  })
 		});	
 		return ps;		
