@@ -52,9 +52,26 @@ A Collection of visualization layouts in JavaScript and D3.
 - [Relocate value labels](http://bl.ocks.org/NPashaP/8ba964986c56fb669af107ead9cb3a81)
 - [Fill by primary key](http://bl.ocks.org/NPashaP/c2ee8555d56e08d0e7e4c8fbca025875)
 - [Fill by secondary key](http://bl.ocks.org/NPashaP/02da079407dad28f62c145b19edc7301)
+- [Fill by value](http://bl.ocks.org/npashap/4b64f2311e071b1f1e6120f01b6e4319)
 - [Add Key Axis](http://bl.ocks.org/npashap/84a601edea7c7353d1050ce33a4ffb85)
 - [Add Value Axis](http://bl.ocks.org/npashap/4bd7aed5e17dd5d4d29494135970876a)
 - [valueDomain](http://bl.ocks.org/npashap/05af8ecea7b70b71f2ab19b592287369)
+- [A custom example ](http://bl.ocks.org/npashap/a23f638e133a743a45e2d315fb167307)
+
+
+### Legend (lg)
+- [Basic Example](http://bl.ocks.org/npashap/a79dc85af99e4f1e44ea687be05923d1)
+- [height - Set height](http://bl.ocks.org/npashap/73d879e1c32894814411029968e3b70f)
+- [paddingInner - Set inner padding](http://bl.ocks.org/npashap/1b58950a2cd0f473a120bba14db70a4e)
+- [size - set width of each symbol](http://bl.ocks.org/npashap/9c37330f52028645e7a13d3d812a1a42)
+- [rows - set rows (hence columns) in legend](http://bl.ocks.org/npashap/62e9e322b09bbe98252654e100897b45)
+- [width - set width of legend area](http://bl.ocks.org/npashap/62e9e322b09bbe98252654e100897b45)
+- [paddingLabel - set padding between symbol and label](http://bl.ocks.org/npashap/b14dff510c9cef173da3545932743cf8)
+- [fill - set the fill color](http://bl.ocks.org/npashap/805af33d37fe60473ddcbcdfb8a48ab2)
+- [draw - circular symbols](http://bl.ocks.org/npashap/907c7b81e91d76b40cdd088d430c8234)
+- [draw - custom symbol - rounded rectangle](http://bl.ocks.org/npashap/19780741c2ecc99bd66de2ccf131b215)
+- [draw - custom symbol - line](http://bl.ocks.org/npashap/81a2c102a5060ba5c4bf83c1776adab3)
+
 
 ### Gauge (gg)
 - [Gauge I](http://bl.ocks.org/NPashaP/59c2c7483fb61070486835d15c807941)

@@ -1,5 +1,5 @@
 !function(){
-  var viz = { version: "1.1.7" };
+  var viz = { version: "1.1.8" };
   var τ =2*Math.PI, π=Math.PI, π2=Math.PI/2;
   
   viz.bP = function(){
@@ -1184,7 +1184,55 @@
 	  }
 	  return bar;
 	}
-	
+  viz.lg = function(){
+	  function lg(_){ 
+		g=_;
+        _.each(function() {
+          var g = d3.select(this);
+		  
+		  var rows = lg.rows(), data=lg.data(); 
+		  rows = (rows==undefined ? data.length : Math.min(rows,data.length));
+		  var cols = Math.ceil(data.length/rows);
+		  
+		  var rowScale = d3.scaleBand().domain(d3.range(rows)).range([0,lg.height()]).paddingInner(lg.paddingInner());
+		  var colScale = d3.scaleBand().domain(d3.range(cols)).range([0,lg.width()]); 
+		  
+		  var size = lg.size(), cellHeight=rowScale.bandwidth(), cellWidth=colScale.bandwidth(), paddingLabel =lg.paddingLabel();
+		  
+		  var loc = d3.range(data.length).map(function(k){
+			var x = k % cols, y = (k-x)/cols; 
+			return {x:colScale(x), y:rowScale(y), width:size, height:cellHeight, key:data[k] };
+		  });
+		  
+		  var legendg = g.selectAll(".legendg").data(loc, function(d){ return d.key;}).enter().append("g").attr("class","legendg")
+					.attr("transform",function(d){ return "translate("+d.x+","+d.y+")";});
+					
+		  legendg.append("text").attr("x",function(d){ return size+paddingLabel;})
+			.attr("y",function(d){ return d.height/2;})
+			.attr("dy",6).text(function(d){ return d.key;});
+
+		  legendg.each(lg.draw());	  
+		  var fill=lg.fill();
+		  if(fill !== undefined){ legendg.selectAll('.legend-icon').style('fill',fill); }
+		});
+	  }
+
+	  lg.data   = viz_assign(lg);
+	  lg.rows   = viz_assign_default(lg, undefined );
+	  lg.width  = viz_assign_default(lg, 100 );
+	  lg.height = viz_assign_default(lg, 200 );
+	  lg.paddingInner = viz_assign_default(lg, 0.1);	
+	  lg.paddingLabel = viz_assign_default(lg, 6);	
+	  lg.size = viz_assign_default(lg, 12);	
+	  lg.fill   = viz_assign_default(lg, undefined );
+	  lg.rect	= function(d){  d3.select(this).append("rect").attr("class",'legend-icon').attr("height",viz_height).attr("width",viz_width);}  
+	  lg.circle = function(d){  
+		d3.select(this).append("circle").attr("class",'legend-icon')
+			.attr("r",Math.min(d.height, d.width)).attr("cx",viz_width2).attr('cy',viz_height2);
+	  }
+	  lg.draw   = viz_assign_default(lg, lg.rect );
+	  return lg;
+  }		
   function viz_d(d){ return d}
   function viz_d0(d){ return d[0]}
   function viz_d1(d){ return d[1]}
