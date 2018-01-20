@@ -7,7 +7,7 @@ A Collection of visualization layouts.
 - [key value1](http://bl.ocks.org/npashap/a383b0c45cefaa52e0a310a7205a23fe)
 - [value0 value1](http://bl.ocks.org/npashap/1af481e01c500fd46ee17ad747552738)
 - [Defined](http://bl.ocks.org/npashap/4dd4d7ef6d93f42c81f71919692d1216)
-- [Curve](http://bl.ocks.org/npashap/c4cf4e019efe606a805812600de59040
+- [Curve](http://bl.ocks.org/npashap/c4cf4e019efe606a805812600de59040)
 - [orient left](http://bl.ocks.org/npashap/e7f91b484f3bffbb2a5538f1bd77cde6)
 - [orient right](http://bl.ocks.org/npashap/e0b148cf602f47bfa383978632742b67)
 - [orient top](http://bl.ocks.org/npashap/da03934330972c3d5806f55cee919af1)
