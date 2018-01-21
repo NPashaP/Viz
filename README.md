@@ -22,7 +22,7 @@ A Collection of visualization layouts.
 
 
 ### bar
-- [default](http://bl.ocks.org/npashap/53de6b6aa782fee3eb76daafeda64cfe)
+- [Default](http://bl.ocks.org/npashap/53de6b6aa782fee3eb76daafeda64cfe)
 - [key value](http://bl.ocks.org/npashap/352d8d8d6352f3275032c9e78114532b)
 - [orient - left](http://bl.ocks.org/npashap/0090937c8987ff49c970ce54408272dd)
 - [orient - right](http://bl.ocks.org/npashap/7318c98254622f73ce6242fd5fd21fb2)
@@ -64,7 +64,7 @@ A Collection of visualization layouts.
 
 
 ### chord
-- [default](http://bl.ocks.org/npashap/5c005547cdd0432d359fd6cab19ed751)
+- [Default](http://bl.ocks.org/npashap/5c005547cdd0432d359fd6cab19ed751)
 - [chordOpacity](http://bl.ocks.org/npashap/b1c40ac6a1e831f2c32d8c54213200da)
 - [duration](http://bl.ocks.org/npashap/e3ec5a27957ac7061b9977b316c360b7)
 - [fill](http://bl.ocks.org/npashap/b1dcfe52c946fd3c97cee8ac5653a48e)
@@ -125,17 +125,23 @@ A Collection of visualization layouts.
 - [startAngle](http://bl.ocks.org/npashap/d37a8d5ce0993a88b09a0a65764bef09)
 
 ### pie3d
+- [Default](http://bl.ocks.org/npashap/c8f92840d30db5c06977f8d420d6246f)
 - [custom](http://bl.ocks.org/npashap/86526392ae4f78326a006b2191845238)
-- [default](http://bl.ocks.org/npashap/c8f92840d30db5c06977f8d420d6246f)
 - [eccentricity](http://bl.ocks.org/npashap/065cb0ef4c2aba83a6a955c9cf5d04aa)
 - [height](http://bl.ocks.org/npashap/edf7da155fa6b7eed64ab8cc179cd22a)
 
 ### point
+- [Default](http://bl.ocks.org/npashap/5a29645da3e9f1641f4282a4e39c0302)
 - [Brush](http://bl.ocks.org/npashap/292bb3fb5b7c3d874ca219ede54dff3b)
 - [Brushend](http://bl.ocks.org/npashap/01387cfae2712c4a7f27a7adf49e959b)
-- [Default](http://bl.ocks.org/npashap/5a29645da3e9f1641f4282a4e39c0302)
 - [drawPoints](http://bl.ocks.org/npashap/3b61a4d18fa0f4aa4f2c14221f500473)
 - [Transition](http://bl.ocks.org/npashap/026f041ce679deb6755459a4478d5ab8)
+
+### Leaflet
+- [Default](http://bl.ocks.org/npashap/9881147d5d11abc2333222bf7fbb784b)
+- [geoJSON - Polygons](http://bl.ocks.org/npashap/3b71e971c5c863b04c7d44f40d94e3b3)
+- [MapTiles](http://bl.ocks.org/npashap/1b21716c9ad8d44b2c1cc49bd2d6195b)
+- [marker](http://bl.ocks.org/npashap/7f30ff733c7a51edae086dfe7ec16e0a)
 
 ### Gauge (gg)
 - [Gauge I](http://bl.ocks.org/NPashaP/59c2c7483fb61070486835d15c807941)
